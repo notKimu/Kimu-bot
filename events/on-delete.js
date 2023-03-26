@@ -1,25 +1,30 @@
 const { Events, EmbedBuilder } = require('discord.js');
 
 module.exports = {
-	name: Events.MessageDelete,
+    name: Events.MessageDelete,
 
-	async execute(message) {
+    async execute(message) {
         try {
-            if (message.content == "") {
+            // Return if it´s empty
+            if (message.content === "") {
                 return;
-            }
-            
-            const logChannel = message.client.channels.cache.find(channel => channel.id == process.env.LOGS);
+            };
 
+            // get the log channel
+            const logChannel = message.client.channels.cache.find(channel => channel.id == process.env.LOGS);
+            
+            // Embed
             const deletedMessage = new EmbedBuilder()
                 .setColor(message.guild.members.me.displayHexColor)
                 .setTitle(`Deleted message at ${message.channel.name}`)
                 .setDescription(`**Author**: ${message.author}\n**Content**: ${message.content}`)
                 .setFooter({ text: `${message.guild.name} - Moderation`, iconURL: `${message.guild.iconURL()}` })
-    
-            await logChannel.send({embeds: [deletedMessage]});
+            // Notify
+            await logChannel.send({ embeds: [deletedMessage] });
+            
         } catch (err) {
+            // Error
             console.log("Error logging deleted message => " + err);
         }
-       }
-	}
+    }
+}

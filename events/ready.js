@@ -39,6 +39,6 @@ module.exports = {
 	        }
         })();
 
-		console.log(`¡${client.user.tag} Is on and ready!`);
+		console.log(`¡${client.user.tag} is on and ready!`);
 	},
 };

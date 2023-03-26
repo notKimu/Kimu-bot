@@ -13,12 +13,14 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
 
 	async execute(interaction, client) {
-
+        // Check if user is on timeout
         if (timeoutUsers.includes(interaction.user.id)) return interaction.reply({ content: 'You have to wait before using this command again! <:nose:1085261670043103232>', ephemeral: true });
 
+        // Get user input
 		const member = interaction.options.getMentionable("member");
 		const reason = interaction.options.getString("reason");
 
+        // The embed
         const bannedUser = new EmbedBuilder()
         .setColor('#fc0335')
         .setTitle(`Banned ${member.displayName}!`)
@@ -40,11 +42,13 @@ module.exports = {
             // B A N
             await member.ban(reason);
         } catch {
+            // Error
             return interaction.reply( { content: "Something went wrong while banning the user, try again! ", ephemeral: true });
         }
+        // Send the embed
         interaction.reply( { embeds: [bannedUser], ephemeral: true });
 
-
+        // Add the timeout
         timeoutUsers.push(interaction.user.id);
         setTimeout(() => {
             timeoutUsers.shift();

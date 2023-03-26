@@ -7,14 +7,14 @@ const dotenv = require('dotenv').config();
 
 // Create the client instance
 const client = new Client({
-    intents: [GatewayIntentBits.DirectMessages,
-		    GatewayIntentBits.Guilds,
-		    GatewayIntentBits.GuildMessages,
-            GatewayIntentBits.GuildPresences,
-		    GatewayIntentBits.MessageContent,
-		    GatewayIntentBits.GuildMembers,
-		    GatewayIntentBits.DirectMessages,
-		    GatewayIntentBits.DirectMessageTyping]
+	intents: [GatewayIntentBits.DirectMessages,
+	GatewayIntentBits.Guilds,
+	GatewayIntentBits.GuildMessages,
+	GatewayIntentBits.GuildPresences,
+	GatewayIntentBits.MessageContent,
+	GatewayIntentBits.GuildMembers,
+	GatewayIntentBits.DirectMessages,
+	GatewayIntentBits.DirectMessageTyping]
 });
 
 

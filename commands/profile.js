@@ -20,16 +20,21 @@ module.exports = {
     .setDescription("See your server profile or someone else's!"),
 
   async execute(interaction) {
+    // Check if user is on timeout
     if (timeoutUsers.includes(interaction.user.id)) return interaction.reply({ content: 'You have to wait before using this command again! <:nose:1085261670043103232>', ephemeral: true });
-    
+
+    // Get user input
     const user = interaction.options.getUser('member') || interaction.user;
     const member = await interaction.guild.members.fetch(user.id);
     const target = await Levels.fetch(user.id, interaction.guild.id);
+    // Remove emojis and thingys
     const regexName = /([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])|╏/g;
 
+    // Return if user is a bot or if there is no level
     if (member.bot) return interaction.reply({ content: 'You can´t se the rank of a bot :c', ephemeral: true });
     if (!target) return interaction.reply({ content: 'Looks like this person still doesn´t have a level :c', ephemeral: true });
 
+    // Create pool
     var con = mysql.createPool({
       host: "localhost",
       user: "kami",
@@ -37,6 +42,7 @@ module.exports = {
       database: "kamidb"
     });
 
+    // Get the URL
     async function getUserImg() {
       return new Promise((resolve, reject) => {
         con.getConnection(async function (err) {
@@ -51,8 +57,10 @@ module.exports = {
               return;
             };
             try {
+              // Get the URL
               resolve(result[0].url);
             } catch {
+              // If there is an error use the default image
               resolve('./src/img/profile.png');
             }
 
@@ -61,6 +69,7 @@ module.exports = {
       })
     }
 
+    // Make the description
     async function getUserDescription() {
       return new Promise((resolve, reject) => {
         con.getConnection(async function (err) {
@@ -68,15 +77,17 @@ module.exports = {
             reject(err);
             return;
           }
-
+          // Search description
           con.query(`SELECT description FROM descriptionimg WHERE guildId = '${interaction.guild.id}' AND userId ='${user.id}'`, function (err, result) {
             if (err) {
               reject(err);
               return;
             };
             try {
+              // Get description
               resolve(result[0].description);
             } catch {
+              // If error use the default description
               resolve('Still empty...');
             }
 
@@ -85,22 +96,23 @@ module.exports = {
       })
     }
 
+    // Main
     getUserImg().then(async result => {
       getUserDescription().then(async description => {
 
-        //Personalización -----------------------------------
+        // Personalization -----------------------------------
         // const accentColor = '#e9a3c2';                /**/
         const wallpaper = result;                       /**/
         //-----------------------------------------------
 
 
 
-        //Hace el Canvas
+        // Make the canvas
         var perfil = {};
         perfil.create = Canvas.createCanvas(400, 500);
         perfil.context = perfil.create.getContext('2d');
 
-        //Carga la imagen de fondo
+        // Load background image
         try {
           const background = await Canvas.loadImage(wallpaper);
           perfil.context.drawImage(background, 0, 0, 400, 500);
@@ -109,7 +121,7 @@ module.exports = {
           perfil.context.drawImage(background, 0, 0, 400, 500);
         }
 
-        //El cuadrado que hace de ventana
+        // The window
         perfil.context.globalAlpha = 0.7;
         perfil.context.fillStyle = '#2c2c2c';
         perfil.context.beginPath();
@@ -117,7 +129,7 @@ module.exports = {
         perfil.context.fill();
         perfil.context.closePath();
 
-        //El cuadrado que hace información en la ventana
+        // The upper frame of the window
         perfil.context.globalAlpha = 1;
         perfil.context.fillStyle = '#1c1c1c';
         perfil.context.beginPath();
@@ -125,7 +137,7 @@ module.exports = {
         perfil.context.fill();
         perfil.context.closePath();
 
-        //Circulitos [¿Bonita apariencia a cambio de rendimiento? Si.]
+        // Circle thingys, yep, looks > performance
         perfil.context.beginPath();
         perfil.context.fillStyle = '#ed3838';
         perfil.context.arc(25, 25, 5, 0, Math.PI * 2, true);
@@ -144,7 +156,7 @@ module.exports = {
         perfil.context.fill();
         perfil.context.closePath();
 
-        // Nombre del miembro
+        // Member name
         perfil.context.font = '15px consola';
         perfil.context.textAlign = 'left';
         perfil.context.fillStyle = '#ffffff';
@@ -155,12 +167,12 @@ module.exports = {
 
         perfil.context.fillText(`${nombreBarra}.md`, 65, 31);
 
-        //Dibujar la foto de perfil
+        // Draw member avatar
         const avatar = member.displayAvatarURL({ extension: "png", size: 1024 });
         let cargaravatar = await Canvas.loadImage(avatar);
         perfil.context.drawImage(cargaravatar, 25, 50, 128, 128);
 
-        // Nombre del miembro pero en grande
+        // Member name in BIG
         perfil.context.globalAlpha = 1;
         perfil.context.font = '24px consola';
         perfil.context.fillStyle = '#ffffff';
@@ -171,16 +183,16 @@ module.exports = {
         if (nombreEnServidor.length > 13) nombreEnServidor = nombreEnServidor.substring(0, 13) + "...";
 
         perfil.context.fillText(nombreEnServidor, 163, 70);
-        // Discriminador
+        // Discriminator
         perfil.context.fillStyle = member.displayHexColor;
         perfil.context.fillText(`#${user.discriminator}`, 163, 100);
 
-        // Barra de nivel
+        // Level bar
         perfil.context.fillStyle = '#ffffff';
         perfil.context.fillRect(163, 122, 215, 25);
 
-        // Porcentaje a llenar
-        /* Momento XP */
+        // How much of the bar to fill
+        /* XP moment */
         const actualXp = target.xp - Levels.xpFor(target.level);
         const requiredXp = Levels.xpFor(target.level + 1);
 
@@ -188,31 +200,31 @@ module.exports = {
         perfil.context.beginPath();
         perfil.context.rect(163, 122, (actualXp / requiredXp) * 215, 25);
         perfil.context.fill()
-        // Si el usuario es color cum, ponerle un borde negro a la barra
+        // If user color is white add an outline
         if (member.displayHexColor == "#ffffff") {
           perfil.context.strokeStyle = 'black';
           perfil.context.lineWidth = 1;
           perfil.context.stroke();
         }
         perfil.context.closePath();
-        // Número de niveles
+        // Level numbers
         perfil.context.fillStyle = '#ffffff';
         perfil.context.fillText(target.level, 163, 178);
         perfil.context.textAlign = 'right';
         perfil.context.fillText(target.level + 1, 378, 178);
 
-        // Info y esas cosas
+        // Info thingys
         perfil.context.textAlign = 'left';
-        // Fecha de unión
+        // Join date
         perfil.context.fillText(`Unión: ${moment.utc(member.joinedAt).format('DD/MM/YY')}`, 25, 220);
-        // Rol superior
+        // Highest role
         let superiorRoleRaw = member.roles.highest.name;
         let superiorRole = superiorRoleRaw.replace(regexName, '').replace('|', '');
 
         if (superiorRole.length > 15) superiorRole = superiorRole.substring(0, 14) + "...";
         perfil.context.fillText(`Rol Superior: ${superiorRole}`, 25, 264);
 
-        /* Zona de la descripción */
+        /* Description zone */
         perfil.context.globalAlpha = 0.7;
         perfil.context.fillStyle = '#2c2c2c';
         perfil.context.beginPath();
@@ -228,17 +240,17 @@ module.exports = {
         perfil.context.closePath();
 
 
-        // Descripción
+        // Description
         perfil.context.font = '20px consola';
         perfil.context.fillStyle = '#ffffff';
         perfil.context.fillText(`Descripción:`, 25, 301);
-        // Contenido de la descripción
+        // Description content
         perfil.context.fillText("> " + description, 25, 338);
 
 
-        //Cargar la imagen al buffer
+        // Load image to buffer
         let imagenfinal = new AttachmentBuilder(perfil.create.toBuffer('image/png'), { name: `perfil_${user.id}.png` });
-        //Enviar la imagen
+        // Send the image
         interaction.reply({ files: [imagenfinal] });
 
         // Add timeout to the command
@@ -247,11 +259,13 @@ module.exports = {
           timeoutUsers.shift();
         }, 60000)
       }).catch(err => {
+        // Error
         console.log('[PROFILE] (description) => ' + err);
         return interaction.reply({ content: "Sorry! I had and internal error, please try later '^^", ephemeral: true });
       });
     }).catch(err => {
-      console.log('[PROFILE] => ' + err);
+      // Error
+      console.log('[PROFILE] (image) => ' + err);
       return interaction.reply({ content: "Sorry! I had and internal error, please try later '^^", ephemeral: true });
     });
   },

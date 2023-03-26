@@ -15,16 +15,20 @@ module.exports = {
     .setDescription('Watch your progress or someone´s else'),
 
   async execute(interaction) {
+    // Check if user is on timeout
+    if (timeoutUsers.includes(interaction.user.id)) return interaction.reply({ content: 'You have to wait before using this command again! <:nose:1085261670043103232>', ephemeral: true });
 
+    // Get member
     const user = interaction.options.getUser('member') || interaction.user;
     const member = await interaction.guild.members.fetch(user.id);
     const target = await Levels.fetch(user.id, interaction.guild.id);
 
-
-    if (timeoutUsers.includes(interaction.user.id)) return interaction.reply({ content: 'You have to wait before using this command again! <:nose:1085261670043103232>', ephemeral: true });
+    // Return if user is a bot
     if (member.bot) return interaction.reply({ content: 'You can´t se the rank of a bot :c', ephemeral: true });
+    // Return if he has no level
     if (!target) return interaction.reply({ content: 'Looks like this person still doesn´t have a rank :c', ephemeral: true });
 
+    // Get image URL
     async function getUserImg() {
       var con = mysql.createPool({
         host: "localhost",
@@ -46,8 +50,10 @@ module.exports = {
               return;
             };
             try {
+              // Get the URL
               resolve(result[0].url);
             } catch (error) {
+              // If error use default image
               resolve('./src/img/level.png');
             }
             
@@ -56,20 +62,21 @@ module.exports = {
       })
     }
 
+    // Main
     getUserImg().then(async result => {
 
-      //Personalización -----------------------------------
+      // Personalization -----------------------------------
       const accentColor = '#e9a3c2';                   /**/
       const wallpaper = result;                       /**/
       //-----------------------------------------------
 
 
 
-      //Hace el Canvas
+      // Make the canvas
       var level = {};
       level.crear = Canvas.createCanvas(1000, 300);
       level.context = level.crear.getContext('2d');
-      //Carga la imagen de background
+      // Load background image
       try {
         const background = await Canvas.loadImage(wallpaper);
         level.context.drawImage(background, 0, 0, 1000, 300);
@@ -81,7 +88,7 @@ module.exports = {
 
       Canvas.registerFont(resolve("./src/fonts/CONSOLA.TTF"), { family: "consola" });
 
-      //El cuadrado donde va la pfp
+      // Window for the pfp
       level.context.globalAlpha = 0.7;
       level.context.fillStyle = '#2c2c2c';
       level.context.beginPath();
@@ -89,13 +96,13 @@ module.exports = {
       level.context.fill();
       level.context.closePath();
 
-      //El cuadrado donde va la info
+      // Window for the description
       level.context.beginPath();
       level.context.roundRect(305, 13, 675, 275, [5, 5, 5, 5]);
       level.context.fill();
       level.context.closePath();
 
-      //El que va encima del de la pfp
+      // Upper frame for the pfp window
       level.context.globalAlpha = 1;
       level.context.fillStyle = accentColor;
       level.context.beginPath();
@@ -103,13 +110,13 @@ module.exports = {
       level.context.fill();
       level.context.closePath();
 
-      //El que va encima de la info
+      // Upper frame for the description window
       level.context.beginPath();
       level.context.roundRect(305, 13, 675, 25, [5, 5, 0, 0]);
       level.context.fill();
       level.context.closePath();
 
-      //Linea negra encima de las ventanas
+      // Black line in front of the windows
       level.context.globalAlpha = 0.7;
       level.context.strokeStyle = 'black';
       level.context.beginPath();
@@ -124,7 +131,7 @@ module.exports = {
 
 
 
-      //Circulitos
+      // Circle thingys
       level.context.globalAlpha = 1;
       level.context.beginPath();
       level.context.fillStyle = '#ed3838';
@@ -147,13 +154,13 @@ module.exports = {
       level.context.fill();
       level.context.closePath();
 
-      //Pasar el avatar a png y hacer que esté en alta resolución
+      // Load the avatar in PNG and high res
       const avatar = member.displayAvatarURL({ extension: "png", size: 1024 });
       let cargaravatar = await Canvas.loadImage(avatar);
-      //Dibujar la foto de perfil
+      // Draw the avatar
       level.context.drawImage(cargaravatar, 38, 50, 225, 225);
 
-      //Nombre de archivos (cursiladas)
+      // File names (fancy stuff)
       level.context.font = '14px consola';
       level.context.textAlign = 'left';
       level.context.fillStyle = '#ffffff';
@@ -161,16 +168,16 @@ module.exports = {
       level.context.fillText('image.png', 82, 30);
       level.context.fillText('XP-Level.db', 375, 30);
 
-      //Información de usuario
+      // User info
       level.context.font = '36px consola';
-      //Nombre y tag
+      // Tag and name
       level.context.fillText(`${member.user.tag}`, 328, 118);
 
       level.context.font = '30px consola';
 
 
-      //ZONA DE Levels
-      //Variables
+      // LEVEL ZONE
+      // Variables [still very messy]
       var actualLevel = target.level;
       var levelAnterior = actualLevel - 1;
       if (levelAnterior == -1) {
@@ -182,20 +189,20 @@ module.exports = {
       const actualXp = target.xp - Levels.xpFor(target.level);
       const requiredXp = Levels.xpFor(target.level + 1);
 
-      //XP actual / necesaria
+      // Actual XP / necessary
       level.context.fillText(`${actualXp} / ${xpNextLev - xpLev}`, 328, 170);
-      //level
+      // Level
       level.context.textAlign = 'right';
       level.context.fillText(`level ${actualLevel}`, 955, 170);
-      //Barra que contiene la XP total
+      // Bar with the total XP
       level.context.fillStyle = '#ffffff';
       level.context.beginPath();
       level.context.roundRect(328, 184, 629, 50, [5, 5, 5, 5]);
       level.context.fill();
       level.context.closePath();
-      //Barra que contiene la XP actual
+      // Bar with the actual XP
       level.context.fillStyle = `${member.displayHexColor}`;
-      //Calcula lo ancha que tiene que ser la barra
+      // Calculate how much of the bar to fill
       const porcentaje = actualXp / requiredXp;
       const anchoBarraXp = porcentaje * 629;
       level.context.beginPath();
@@ -211,10 +218,10 @@ module.exports = {
       level.context.closePath();
 
 
-      //Cargar la imagen al buffer
+      // Load image to the buffer
       let imagenfinal = new AttachmentBuilder(level.crear.toBuffer('image/png'), { name: `level_${member.id}.png` });
-      //Canal en el que quieres enviar los mensajes de bienvenida
-      //Enviar el texto y la foto
+
+      // Send the photo
       await interaction.reply({ files: [imagenfinal] });
       level.context.clearRect(0, 0, 1000, 300);
 
@@ -223,7 +230,9 @@ module.exports = {
       setTimeout(() => {
         timeoutUsers.shift();
       }, 60000)
+
     }).catch(err => {
+      // Error
       console.log('[RANK] => ' + err);
       return interaction.reply({ content: "Sorry! I had and internal error, please try later '^^", ephemeral: true });
     });
