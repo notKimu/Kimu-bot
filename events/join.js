@@ -1,15 +1,59 @@
 const { Events, AttachmentBuilder } = require('discord.js');
 const Canvas = require('canvas');
 const { resolve } = require("path");
+const mysql = require('mysql');
 const welcomeMessages = require('../src/json/welcome-msg.json');
 
 module.exports = {
     name: Events.GuildMemberAdd,
 
     async execute(member) {
-        try {
+        // DB Connection
+        var con = mysql.createPool({
+            host: "localhost",
+            user: "kami",
+            password: process.env.DBPASS,
+            database: "kamidb"
+        });
+        con.getConnection(function (err) {
+            if (err) throw err;
+        });
+
+        // Get channel and message
+        function getWelcomeData() {
+            return new Promise((resolve, reject) => {
+                con.getConnection(async function (err) {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+
+                    con.query('SELECT channel,message FROM welcome WHERE guildId = ?', [member.guild.id], function (err, result) {
+                        if (err) {
+                            reject(err);
+                            return;
+                        };
+                        try {
+                            // Get the thingys
+                            resolve(result[0]);
+                        } catch (error) {
+                            // If error use default channel
+                            resolve(member.guild.systemChannel.id, `Welcome to ${member.guild.name}, ${member}!`);
+                        }
+
+                    });
+                });
+            })
+        }
+
+        getWelcomeData().then(async welcomeData => {
             // Get the welcome channel
-            const welcomeChannel = member.guild.systemChannel;
+            let welcomeChannel;
+            try {
+                welcomeChannel = member.client.channels.cache.find(channel => channel.id === welcomeData.channel);
+            } catch {
+                welcomeChannel = member.client.channels.cache.find(channel => channel.id === member.guild.systemChannel.id);
+            }
 
             // Random values
             function random(min, max) {
@@ -111,18 +155,27 @@ module.exports = {
             welcome.context.fillText(welcomeMessages[random(0, welcomeMessages.length)], 258, 257);
 
 
-            //Cargar la imagen al buffer
+            // Load image to buffer
             let finalImage = new AttachmentBuilder(welcome.create.toBuffer('image/png'), { name: `log_${member.user.id}.png` });
 
-            //Enviar el texto y la foto
-            welcomeChannel.send({
-                content: `You are registered as ./${member}\nCheck out <#1084616008322523157> to log in! `,
-                files: [finalImage]
-            });
-            welcome.context.clearRect(0, 0, 700, 343);
-        } catch (err) {
-            // Error
-            console.log("Error with welcome image" + err);
-        }
+            // Send message
+            try {
+                let welcomeMessageRaw = welcomeData.message;
+                let welcomeMessage = welcomeMessageRaw.replace('{member}', `<@${member.id}>`)
+                    .replace('{name}', member.username)
+                    .replace('{server}', member.guild.name);
+                await welcomeChannel.send({
+                    content: welcomeMessage,
+                    files: [finalImage]
+                });
+            } catch {
+                await welcomeChannel.send({
+                    content: `Welcome to ${member.guild.name}, ${member}!`,
+                    files: [finalImage]
+                });
+            };
+            // welcome.context.clearRect(0, 0, 700, 343);
+        })
+
     },
 };
