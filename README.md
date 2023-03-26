@@ -20,27 +20,25 @@ If you want to contribute to my development you need to fork and clone me to you
 
 Here are the steps:
 
-- <div style="display: flex; flex-direction: column; width: 100%;">
+- 
     Fork my repo, for that you can use the fork button here in github
+    
     <img style="width: 200px;" src="https://cdn.discordapp.com/attachments/1085163771284176926/1089529081084784690/Fork.png">
-</div>
-
 
 _ _ _
-- <div style="display: flex; flex-direction: column; width: 100%;">
+- 
     Clone your fork to your PC using git if you can, is much faster:
     
     ```bash
     $ git clone https://github.com/<Username>/Kimu-bot
     ```
     If you really really really don´t want to use git just download the code in a zip:
+    
     <img style="width: 500px; border-radius: 10px;" src="https://cdn.discordapp.com/attachments/1085163771284176926/1089530813068091512/image.png">
-</div>
 
 
 _ _ _
-- <div style="display: flex; flex-direction: column; width: 100%;">
-    Edit your code and push it to your repo:
+- Edit your code and push it to your repo:
     
     ```bash
     $ git add --all
@@ -59,12 +57,11 @@ _ _ _
     ```
     
     > Remember to add your .env file to .gitignore!!!
-</div>
 
 _ _ _
-- <div style="display: flex; flex-direction: column; width: 100%;">
+- 
     Do a pull request going to this repo and click the button!
+
     <img style="width: 200px; border-radius: 9px;" src="https://cdn.discordapp.com/attachments/1085163771284176926/1089533038607745094/pull.png">
-</div>
 
 _ _ _
