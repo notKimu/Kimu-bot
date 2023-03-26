@@ -52,7 +52,6 @@ _ _ _
     clientId="<client ID>"
     MONDONGO="<mongo db url>"
     DBPASS="<password for MySQL database>"
-    LEVELS="<level up channel ID>"
     LOGS="<log channel ID>"
     ```
     
