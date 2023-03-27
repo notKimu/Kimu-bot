@@ -41,7 +41,7 @@ module.exports = {
         timeoutUsers.push(interaction.user.id);
         setTimeout(() => {
             timeoutUsers.shift();
-        }, 120000)
+        }, 60000)
         // Send confirmation
         return await interaction.reply({ content: `Now the welcome messages will be sent to <#${channel.id}> <:uwu:1085202610971217940>`, ephemeral: true });
     }

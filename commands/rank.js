@@ -20,8 +20,14 @@ module.exports = {
 
     // Get member
     const user = interaction.options.getUser('member') || interaction.user;
-    const member = await interaction.guild.members.fetch(user.id);
+		// Return if it doesn´t find the member
+    try {
+      var member = await interaction.guild.members.fetch(user.id);
+    } catch (error) {
+      return await interaction.reply({ content: "I don´t think that user is from this server! <:michiru_toast:1087450095047409734>", ephemeral: true });
+    }
     const target = await Levels.fetch(user.id, interaction.guild.id);
+
 
     // Return if user is a bot
     if (member.bot) return interaction.reply({ content: 'You can´t se the rank of a bot :c', ephemeral: true });

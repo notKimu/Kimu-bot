@@ -79,8 +79,8 @@ module.exports = {
                                 })
                         }
 
-                        getLevelChannel().then(async result => {
-                                const levelChannel = message.client.channels.cache.find(channel => channel.id === result);
+                        getLevelChannel().then(async channelSetted => {
+                                const levelChannel = message.client.channels.cache.find(channel => channel.id === channelSetted);
 
                                 for (let i = 0; i < levelNum.length; i++) {
                                         // If new level and new role

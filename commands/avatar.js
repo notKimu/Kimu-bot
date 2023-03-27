@@ -15,16 +15,22 @@ module.exports = {
 
 		// Get input
 		const user = interaction.options.getUser('member') || interaction.user;
-		const member = await interaction.guild.members.fetch(user.id)
+		// Return if user is not from the server
+		try {
+			var member = await interaction.guild.members.fetch(user.id);
+		} catch (error) {
+			return await interaction.reply({ content: "I don´t think that user is from this server! <:michiru_toast:1087450095047409734>", ephemeral: true });
+		}
+
 
 		// Return if user is bot
-        if (user.bot) return await interaction.reply({content: 'You can´t see the avatar of a bot!', ephemeral: true});
+		if (user.bot) return await interaction.reply({ content: 'You can´t see the avatar of a bot!', ephemeral: true });
 
 		// Embed
 		const avatarEmbed = new EmbedBuilder()
 			.setColor(member.displayHexColor)
 			.setTitle(`This is the avatar of ${member.user.username}!`)
-            .setDescription(`[PNG](${member.displayAvatarURL({ extension: "png", size: 1024 })}) | [JPG](${member.displayAvatarURL({ extension: "jpg", size: 1024 })}) | [GIF](${member.displayAvatarURL({ extension: "gif", size: 1024 })})`)
+			.setDescription(`[PNG](${member.displayAvatarURL({ extension: "png", size: 1024 })}) | [JPG](${member.displayAvatarURL({ extension: "jpg", size: 1024 })}) | [GIF](${member.displayAvatarURL({ extension: "gif", size: 1024 })})`)
 			.setImage(member.displayAvatarURL({ extension: "png", size: 1024 }))
 			.setFooter({ text: `${interaction.guild.name} - Members`, iconURL: `${interaction.guild.iconURL()}` })
 		// Reply

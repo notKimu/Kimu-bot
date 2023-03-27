@@ -25,7 +25,12 @@ module.exports = {
 
     // Get user input
     const user = interaction.options.getUser('member') || interaction.user;
-    const member = await interaction.guild.members.fetch(user.id);
+    // Return if user is not from the server
+    try {
+      var member = await interaction.guild.members.fetch(user.id);
+    } catch (error) {
+      return await interaction.reply({ content: "I don´t think that user is from this server! <:michiru_toast:1087450095047409734>", ephemeral: true });
+    }
     const target = await Levels.fetch(user.id, interaction.guild.id);
     // Remove emojis and thingys
     const regexName = /([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])|╏/g;

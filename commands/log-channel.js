@@ -6,10 +6,10 @@ var timeoutUsers = [];
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('welcome-message')
-        .addStringOption(option =>
-            option.setName('message').setDescription('The message you want to set').setRequired(true))
-        .setDescription('Set a custom message for when someone joins')
+        .setName('log-channel')
+        .addChannelOption(option =>
+            option.setName('channel').setDescription('Activate and select a channel for the log system!').setRequired(true))
+        .setDescription('Set where you want the log messages to be sent')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
     async execute(interaction) {
@@ -17,7 +17,7 @@ module.exports = {
         if (timeoutUsers.includes(interaction.user.id)) return interaction.reply({ content: 'You have to wait before using this command again! <:nose:1085261670043103232>', ephemeral: true });
 
         //Get user input
-        const message = interaction.options.getString('message');
+        var channel = interaction.options.getChannel('channel');
 
         // Database Connection
         var con = mysql.createPool({
@@ -32,7 +32,7 @@ module.exports = {
 
 
         // Insert in DB
-        con.query('INSERT INTO welcome (guildId, message) VALUES (?, ?) ON DUPLICATE KEY UPDATE message = ?', [interaction.guild.id, message, message], function (err, result) {
+        con.query('INSERT INTO log (guildId, channel) VALUES (?, ?) ON DUPLICATE KEY UPDATE channel = ?', [interaction.guild.id, channel.id, channel.id], function (err, result) {
             if (err) throw err;
         })
 
@@ -43,6 +43,6 @@ module.exports = {
             timeoutUsers.shift();
         }, 60000)
         // Send confirmation
-        return await interaction.reply({ content: `The new welcome message will be "${message}" <:howdy:1085203009333637170>`, ephemeral: true });
+        return await interaction.reply({ content: `The log system is now active at <#${channel.id}> <:ta_potente:1085193115926790144>`, ephemeral: true });
     }
 }
