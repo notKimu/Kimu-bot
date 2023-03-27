@@ -52,7 +52,6 @@ _ _ _
     clientId="<client ID>"
     MONDONGO="<mongo db url>"
     DBPASS="<password for MySQL database>"
-    LOGS="<log channel ID>"
     ```
     
     > Remember to add your .env file to .gitignore!!!
