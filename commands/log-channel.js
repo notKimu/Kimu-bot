@@ -17,8 +17,11 @@ module.exports = {
         if (timeoutUsers.includes(interaction.user.id)) return interaction.reply({ content: 'You have to wait before using this command again! <:nose:1085261670043103232>', ephemeral: true });
 
         //Get user input
-        var channel = interaction.options.getChannel('channel');
-
+        const channel = interaction.options.getChannel('channel');
+        // Check if the channel is a text channel
+        if (channel.type !== 0) {
+            return await interaction.reply({ content: `Sorry but the channel must be a text channel! <a:bobo_bobo:1090018396902535199>`, ephemeral: true });
+        }
         // Database Connection
         var con = mysql.createPool({
             host: "localhost",

@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const moment = require('moment');
 const mysql = require('mysql');
 
 var timeoutUsers = [];
@@ -18,13 +19,13 @@ module.exports = {
         if (timeoutUsers.includes(interaction.user.id)) return interaction.reply({ content: 'You have to wait before using this command again! <:nose:1085261670043103232>', ephemeral: true });
 
         // Get user input
-		const user = interaction.options.getUser('member') || interaction.user;
+        const user = interaction.options.getUser('member') || interaction.user;
         // Return if user is not from the server
         try {
             var member = await interaction.guild.members.fetch(user.id);
-          } catch (error) {
+        } catch (error) {
             return await interaction.reply({ content: "I don´t think that user is from this server! <:michiru_toast:1087450095047409734>", ephemeral: true });
-          }
+        }
         const reason = interaction.options.getString("reason");
 
 
@@ -47,9 +48,6 @@ module.exports = {
             user: "kami",
             password: process.env.DBPASS,
             database: "kamidb"
-        });
-        con.getConnection(function (err) {
-            if (err) throw err;
         });
 
         // Get log channel
@@ -81,19 +79,16 @@ module.exports = {
 
         // Main
         getLogChannel().then(async channelSetted => {
-            try {
-                // K I C K
-                await member.kick(reason);
-            } catch {
-                // Error
-                return interaction.reply({ content: "Something went wrong while kicking the user, try again!", ephemeral: true });
-            }
+            // K I C K
+            await member.kick(reason).catch(async () => {
+                return await interaction.reply({ content: "Something went wrong while kicking the user!", ephemeral: true });
+            });
 
             // The embed
             const kickedUser = new EmbedBuilder()
                 .setColor('#fc0335')
                 .setTitle(`Kicked ${member.displayName}!`)
-                .setDescription(`${member.displayName} was kicked\n> Joined on <t:${member.joinedAt}:R>\n> Reason: ${reason}`)
+                .setDescription(`${member.displayName} was kicked\n> Joined on **${moment.utc(member.joinedAt).format('DD/MM/YY')}**\n> Reason: ${reason}`)
                 .setThumbnail(member.displayAvatarURL())
                 .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${interaction.guild.iconURL()}` });
 
@@ -109,7 +104,7 @@ module.exports = {
                 const logKick = new EmbedBuilder()
                     .setColor('#fc0335')
                     .setTitle(`Kicked ${member.displayName}!`)
-                    .setDescription(`${member.displayName} was kicked\n> Joined on <t:${member.joinedAt}:R>\n> Reason: ${reason}\nModerator: <@${interaction.member.id}>`)
+                    .setDescription(`${member.displayName} was kicked\n> Joined on **${moment.utc(member.joinedAt).format('DD/MM/YY')}**\n> Reason: ${reason}\nModerator: <@${interaction.member.id}>`)
                     .setThumbnail(member.displayAvatarURL())
                     .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${interaction.guild.iconURL()}` });
                 // Send

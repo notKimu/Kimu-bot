@@ -23,9 +23,6 @@ module.exports = {
 		}
 
 
-		// Return if user is bot
-		if (user.bot) return await interaction.reply({ content: 'You can´t see the avatar of a bot!', ephemeral: true });
-
 		// Embed
 		const avatarEmbed = new EmbedBuilder()
 			.setColor(member.displayHexColor)

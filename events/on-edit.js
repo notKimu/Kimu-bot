@@ -41,7 +41,7 @@ module.exports = {
                             resolve(result[0].channel);
                         } catch (error) {
                             // If error there is no log channel configured
-                            return;
+                            resolve(null);
                         }
 
                     });
@@ -51,13 +51,15 @@ module.exports = {
 
         // Main
         getLogChannel().then(async channelSetted => {
+            // Do anything if there is no log channel set
+            if (!channelSetted) return;
             // Fetch the log channel
             const logChannel = newMessage.client.channels.cache.find(channel => channel.id === channelSetted);
 
             // Embed
             const editedMessage = new EmbedBuilder()
                 .setColor('#ffb780')
-                .setTitle(`Edited message at ${newMessage.channel.name}`)
+                .setTitle(`Edited message at <#${newMessage.channel.id}>`)
                 .setDescription(`**Author**: ${newMessage.member}\n**Old Message**: ${oldMessage.content}\n**New message**: ${newMessage.content}`)
                 .setThumbnail(newMessage.member.displayAvatarURL())
                 .setFooter({ text: `${newMessage.guild.name} - Moderation`, iconURL: `${newMessage.guild.iconURL()}` })

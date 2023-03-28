@@ -18,7 +18,7 @@ module.exports = {
         if (timeoutUsers.includes(interaction.user.id)) return interaction.reply({ content: 'You have to wait before using this command again! <:nose:1085261670043103232>', ephemeral: true });
 
         // Get input
-        const url = interaction.options.getString('image');
+        let url = interaction.options.getString('image');
         const userId = interaction.user.id;
         const guildId = interaction.guild.id;
         // Check if user is a link
@@ -48,13 +48,11 @@ module.exports = {
 
                     // Delete current image (will be changed)
                     if (isImage) {
-                        let removeImg = `DELETE FROM rankimg WHERE guildId = '${guildId}' AND userId = '${userId}';`;
-                        con.query(removeImg, function (err, result) {
+                        con.query(`DELETE FROM rankimg WHERE guildId = ? AND userId = ?;`, [guildId, userId], function (err, result) {
                             if (err) throw err;
                         });
                         // Insert URL
-                        let setImg = `INSERT INTO rankimg (guildId, userId, url) VALUES ('${guildId}', '${userId}', '${url}');`
-                        con.query(setImg, function (err, result) {
+                        con.query(`INSERT INTO rankimg (guildId, userId, url) VALUES (?, ?, ?);`, [guildId, userId, url], function (err, result) {
                             if (err) throw err;
                         })
 

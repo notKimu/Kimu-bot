@@ -16,7 +16,7 @@ module.exports = {
                     { name: 'Minutes', value: 60 },
                     { name: 'Hours', value: 3600 },
                     { name: 'Days', value: 86400 },
-        ).setRequired(true))
+                ).setRequired(true))
         .addIntegerOption(string =>
             string.setName('time').setDescription('How many > minutes < you want to mute the member').setRequired(true))
         .addStringOption(string =>
@@ -60,97 +60,38 @@ module.exports = {
             return await interaction.reply({ content: "I can´t mute someone with a role higher than me! <:quevrga:1090016365554970634>", ephemeral: true });
         }
 
-        // DB Connection
-        var con = mysql.createPool({
-            host: "localhost",
-            user: "kami",
-            password: process.env.DBPASS,
-            database: "kamidb"
-        });
-        con.getConnection(function (err) {
-            if (err) throw err;
+
+        // M U T E
+        await member.timeout(time * timeUnit * 1000, reason).catch(async () => {
+            return await interaction.reply({ content: "Something went wrong while muting the user!", ephemeral: true });
         });
 
-        // Get log channel
-        function getLogChannel() {
-            return new Promise((resolve, reject) => {
-                con.getConnection(async function (err) {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
+        // Get the time unit
+        let timeAmmount = "";
+        if (timeUnit === 60) {
+            timeAmmount = "minutes";
+        } else if (timeUnit === 3600) {
+            timeAmmount = "hours";
+        } else {
+            timeAmmount = "days";
+        };
 
-                    con.query('SELECT channel FROM log WHERE guildId = ?', [interaction.guild.id], function (err, result) {
-                        if (err) {
-                            reject(err);
-                            return;
-                        };
-                        try {
-                            // Get the thingys
-                            resolve(result[0].channel);
-                        } catch (error) {
-                            // If error there is no log channel configured
-                            resolve(false);
-                        }
-
-                    });
-                });
-            })
-        }
-
-        // Main
-        getLogChannel().then(async channelSetted => {
-            try {
-                // M U T E
-                await member.timeout(time * timeUnit * 1000, reason);
-            } catch {
-                // Error
-                return interaction.reply({ content: "Something went wrong while muting the user, try again!", ephemeral: true });
-            }
-
-            // Get the time unit
-            let timeAmmount = "";
-            if (timeUnit === 60) {
-                timeAmmount = "minutes";
-            } else if (timeUnit === 3600) {
-                timeAmmount = "hours";
-            } else {
-                timeAmmount = "days";
-            };
-
-            // The embed
-            const mutedMember = new EmbedBuilder()
-                .setColor('#fc0335')
-                .setTitle(`Muted ${member.displayName} for **${time}** ${timeAmmount}!`)
-                .setDescription(`${member.displayName} was muted\n> Muted for **${time}** ${timeAmmount}\n> Reason: ${reason}`)
-                .setThumbnail(member.displayAvatarURL())
-                .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${interaction.guild.iconURL()}` });
+        // The embed
+        const mutedMember = new EmbedBuilder()
+            .setColor('#fc0335')
+            .setTitle(`Muted ${member.displayName} for **${time}** ${timeAmmount}!`)
+            .setDescription(`${member.displayName} was muted\n> Muted for **${time}** ${timeAmmount}\n> Reason: ${reason}`)
+            .setThumbnail(member.displayAvatarURL())
+            .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${interaction.guild.iconURL()}` });
 
 
-            // Fetch the log channel if there is one configured
-            await interaction.reply({ embeds: [mutedMember], ephemeral: true });
+        // Fetch the log channel if there is one configured
+        await interaction.reply({ embeds: [mutedMember], ephemeral: true });
 
-            // Send log if there is log channel setted
-            if (channelSetted) {
-                // Fetch log channel
-                const logChannel = interaction.guild.client.channels.cache.find(channel => channel.id === channelSetted);
-                // The Log
-                const logMuted = new EmbedBuilder()
-                    .setColor('#fc0335')
-                    .setTitle(`${member.displayName} was muted for **${time}** ${timeAmmount}!`)
-                    .setDescription(`${member.displayName} was muted\n> Muted for **${time}** ${timeAmmount}\n> Reason: ${reason}\n> Moderator: ${interaction.member}`)
-                    .setThumbnail(member.displayAvatarURL())
-                    .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${interaction.guild.iconURL()}` });
-                // Send
-                await logChannel.send({ embeds: [logMuted] });
-            }
-
-
-            // Add the timeout
-            timeoutUsers.push(interaction.user.id);
-            setTimeout(() => {
-                timeoutUsers.shift();
-            }, 10000)
-        }).catch(err => console.log("Error on kick => " + err));
+        // Add the timeout
+        timeoutUsers.push(interaction.user.id);
+        setTimeout(() => {
+            timeoutUsers.shift();
+        }, 10000)
     },
 };

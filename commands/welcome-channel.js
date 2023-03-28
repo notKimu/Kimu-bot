@@ -18,6 +18,10 @@ module.exports = {
 
         //Get user input
         var channel = interaction.options.getChannel('channel');
+        // Check if the channel is a text channel
+        if (channel.type !== 0) {
+            return await interaction.reply({ content: `Sorry but the channel must be a text channel! <a:bobo_bobo:1090018396902535199>`, ephemeral: true });
+        }
 
         // Database Connection
         var con = mysql.createPool({

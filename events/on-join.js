@@ -28,7 +28,7 @@ module.exports = {
                         return;
                     }
 
-                    con.query('SELECT channel,message FROM welcome WHERE guildId = ?', [member.guild.id], function (err, result) {
+                    con.query('SELECT channel,message,image FROM welcome WHERE guildId = ?', [member.guild.id], function (err, result) {
                         if (err) {
                             reject(err);
                             return;
@@ -49,8 +49,12 @@ module.exports = {
         getWelcomeData().then(async welcomeData => {
             // Get the welcome channel
             let welcomeChannel;
+
             try {
                 welcomeChannel = member.client.channels.cache.find(channel => channel.id === welcomeData.channel);
+                if (welcomeChannel === undefined) {
+                    welcomeChannel = member.client.channels.cache.find(channel => channel.id === member.guild.systemChannel.id);
+                }
             } catch {
                 welcomeChannel = member.client.channels.cache.find(channel => channel.id === member.guild.systemChannel.id);
             }
@@ -71,8 +75,14 @@ module.exports = {
             welcome.create = Canvas.createCanvas(700, 343);
             welcome.context = welcome.create.getContext('2d');
             // Load bg image
-            const background = await Canvas.loadImage('./src/img/cherry_pixel_art.png')
-            welcome.context.drawImage(background, 0, 0, 700, 343);
+            console.log(welcomeData.image)
+            try {
+                const background = await Canvas.loadImage(welcomeData.image);
+                welcome.context.drawImage(background, 0, 0, 700, 343);
+            } catch (error) {
+                const background = await Canvas.loadImage('./src/img/cherry_pixel_art.png');
+                welcome.context.drawImage(background, 0, 0, 700, 343);
+            }
 
             // Rectangle overlay
             welcome.context.fillStyle = '#3e2c3e';

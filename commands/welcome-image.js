@@ -1,0 +1,83 @@
+const { SlashCommandBuilder } = require('discord.js');
+const mysql = require('mysql');
+const dotenv = require('dotenv').config();
+
+var timeoutUsers = [];
+const imageTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('welcome-image')
+        .addStringOption(option =>
+            option.setName('image').setDescription('Paste the link to the image you want as a background on your profile card').setRequired(true))
+        .setDescription('Set a background for the welcome image [700px x 343px preferred]'),
+
+    async execute(interaction) {
+        // Check if user is on cooldown
+        if (timeoutUsers.includes(interaction.user.id)) return interaction.reply({ content: 'You have to wait before using this command again! <:nose:1085261670043103232>', ephemeral: true });
+
+        // Get inputs
+        let url = interaction.options.getString('image');
+        const userId = interaction.user.id;
+        const guildId = interaction.guild.id;
+        // URL pattern
+        const urlPattern = /^(http|https):\/\/[^ "]+$/;
+
+        try {
+            // Try getting the image
+            if (urlPattern.test(url)) {
+                fetch(url, { method: 'HEAD' }).then(async res => {
+                    if (!res.ok) return interaction.reply({ content: "I can´t access that website! <:sob:1085192644512206868>", ephemeral: true });
+
+                    // Database Connection
+                    var con = mysql.createPool({
+                        host: "localhost",
+                        user: "kami",
+                        password: process.env.DBPASS,
+                        database: "kamidb"
+                    });
+
+                    con.getConnection(function (err) {
+                        if (err) throw err;
+                    });
+                    // Reject GIFs
+                    if (res.headers.get('Content-Type') == 'image/gif') return interaction.reply({ content: "Sorry! I don´t accept GIFs (for now) '^^", ephemeral: true });
+                    let isImage = imageTypes.includes(res.headers.get('Content-Type'));
+
+                    if (isImage) {
+                        // Insert the URL
+                        con.query(`INSERT INTO welcome (guildId, image) VALUES (?, ?) ON DUPLICATE KEY UPDATE image = ?;`, [guildId, url, url], function (err, result) {
+                            if (err) throw err;
+                        })
+
+                        // Add a timeout to the command
+                        timeoutUsers.push(interaction.user.id);
+                        setTimeout(() => {
+                            timeoutUsers.shift();
+                        }, 60000)
+
+                        // Notify the user
+                        return interaction.reply({ content: "Image recorded to the database :D", ephemeral: true });
+
+                    } else {
+                        // Error if url is not an image
+                        return interaction.reply({ content: "That doesn´t look like an image to me. (maybe I can´t access the url!) <:confused:1085200665443311757>", ephemeral: true })
+                    }
+
+                }).catch(error => {
+                    // Error
+                    console.log("Error in fetch call => " + error);
+                    return interaction.reply({ content: "An error ocurred, please try again! <:naisu:1085263429415215236>", ephemeral: true });
+                });
+            } else {
+                // Error if is not a URL
+                return interaction.reply({ content: "That doesn´t look like an URL to me. (maybe I can´t access the url!) <:confused:1085200665443311757>", ephemeral: true });
+            }
+        } catch (err) {
+            // Error
+            console.log('[WELCOME-IMG] => ' + err);
+            return interaction.reply({ content: "Sorry! There was an internal error, please try again '^^", ephemeral: true });
+        }
+    }
+
+}

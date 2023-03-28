@@ -21,33 +21,53 @@ module.exports = {
             password: process.env.DBPASS,
             database: "kamidb"
         });
-        con.getConnection(function (err) {
-            if (err) throw err;
+
+        // Get log channel
+        function getLogChannel() {
+            return new Promise((resolve, reject) => {
+                con.getConnection(async function (err) {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+
+                    con.query('SELECT channel FROM log WHERE guildId = ?;', [interaction.guild.id], async function (err, result) {
+                        if (err) {
+                            reject(err);
+                            return;
+                        }
+                        try {
+                            // Get the thingys
+                            resolve(result[0].channel);
+                        } catch (error) {
+                            // If error there is no log channel configured
+                            resolve(null);
+                        }
+
+                    });
+                });
+            })
+        }
+
+        getLogChannel().then(async channelSetted => {
+            if (!channelSetted) return await interaction.reply({ content: "But the log system is offline! <:abueno:1085200136461893753>", ephemeral: true });
+
+            // Insert in DB
+            con.query('DELETE FROM log WHERE guildId = ?;', [interaction.guild.id], async function (err, result) {
+                if (err) throw err;
+                try {
+                    // Send confirmation
+                    return await interaction.reply({ content: `The log system is now offline <:adolfmir:1085261413863403560>`, ephemeral: true });
+                } catch (error) {
+                    return;
+                }
+            })
+
+            // Add a timeout to the command
+            timeoutUsers.push(interaction.user.id);
+            setTimeout(() => {
+                timeoutUsers.shift();
+            }, 60000)
         });
-
-        con.query('SELECT FROM log WHERE guildId = ?', [interaction.guild.id], async function (err, result) {
-            if (err) {
-                // Send error
-                return await interaction.reply({ content: `But the log system is currently offline <:sob:1085192644512206868>`, ephemeral: true });
-            };
-        })
-
-        // Insert in DB
-        con.query('DELETE FROM log WHERE guildId = ?', [interaction.guild.id], async function (err, result) {
-            if (err) throw err;
-            try {
-                // Send confirmation
-                return await interaction.reply({ content: `The log system is now offline <:adolfmir:1085261413863403560>`, ephemeral: true });
-            } catch (error) {
-                return;
-            }
-        })
-
-
-        // Add a timeout to the command
-        timeoutUsers.push(interaction.user.id);
-        setTimeout(() => {
-            timeoutUsers.shift();
-        }, 60000)
     }
 }

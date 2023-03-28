@@ -36,7 +36,7 @@ module.exports = {
                             resolve(result[0].channel);
                         } catch (error) {
                             // If error there is no log channel configured
-                            return;
+                            resolve(null);
                         }
 
                     });
@@ -46,8 +46,12 @@ module.exports = {
 
         // Main
         getLogChannel().then(async channelSetted => {
+            // Do anything if there is no log channel set
+            if (!channelSetted) return;
+
             // Fetch the log channel
             const logChannel = channel.guild.client.channels.cache.find(channel => channel.id === channelSetted);
+
             // Check channel type [OH SHIT SPAGHETTI]
             let channelType = "Undefined";
             if (channel.type === 0) {
@@ -65,18 +69,25 @@ module.exports = {
             } else if (channel.type === 14) {
                 channelType = "Server Directory"
             };
-            // Embed
-            const channelCreate = new EmbedBuilder()
-                .setColor('#66cc66')
-                .setTitle(`New channel created! <#${channel.id}>`)
-                .setDescription(`Channel <#${channel.id}> was created in the <#${channel.parentId}> category`)
-                .addFields(
-                    {name: "Type:", value: `${channelType}`},
-                )
-                .setThumbnail(channel.guild.iconURL())
-                .setFooter({ text: `${channel.guild.name} - Moderation`, iconURL: `${channel.guild.iconURL()}` })
-            // Notify
-            await logChannel.send({ embeds: [channelCreate] });
+
+            // Get who made the channel
+            channel.guild.fetchAuditLogs({ type: AuditLogEvent.ChannelCreate }).then(async audit => {
+                // Embed
+                const channelCreate = new EmbedBuilder()
+                    .setColor('#66cc66')
+                    .setTitle(`New channel created! <#${channel.id}>`)
+                    .setDescription(`Channel <#${channel.id}> was created in the <#${channel.parentId}> category`)
+                    .addFields(
+                        { name: "Type:", value: `> ${channelType}` },
+                        { name: "ID:", value: `> ${channel.id}` },
+                        { name: "Moderator:", value: `> ${audit.entries.first().executor}` },
+                    )
+                    .setThumbnail(channel.guild.iconURL())
+                    .setFooter({ text: `${channel.guild.name} - Moderation`, iconURL: `${channel.guild.iconURL()}` })
+                // Notify
+                await logChannel.send({ embeds: [channelCreate] });
+            }).catch(err => console.log("Error on created channel => " + err));
+
         }).catch(err => console.log("Error on created channel => " + err));
     }
 }

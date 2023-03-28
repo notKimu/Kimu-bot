@@ -1,11 +1,12 @@
-const { Events, EmbedBuilder } = require('discord.js');
+const { AuditLogEvent, Events, EmbedBuilder } = require('discord.js');
 const mysql = require('mysql');
+const fs = require('node:fs')
 
 module.exports = {
     name: Events.ChannelUpdate,
 
     async execute(oldChannel, channel) {
-
+        
         // DB Connection
         var con = mysql.createPool({
             host: "localhost",
@@ -36,7 +37,7 @@ module.exports = {
                             resolve(result[0].channel);
                         } catch (error) {
                             // If error there is no log channel configured
-                            return;
+                            resolve(null);
                         }
 
                     });
@@ -46,6 +47,8 @@ module.exports = {
 
         // Main
         getLogChannel().then(async channelSetted => {
+            // Do anything if there is no log channel set
+            if (!channelSetted) return;
             // Fetch the log channel
             const logChannel = channel.guild.client.channels.cache.find(channel => channel.id === channelSetted);
             // Check channel type [OH SHIT SPAGHETTI]
@@ -80,6 +83,23 @@ module.exports = {
                 .setFooter({ text: `${channel.guild.name} - Moderation`, iconURL: `${channel.guild.iconURL()}` })
             // Notify
             await logChannel.send({ embeds: [channelCreate] });
+
+            channel.guild.fetchAuditLogs({ type: AuditLogEvent.ChannelUpdate }).then(async audit => {
+                console.log(audit.entries.first().changes)
+            }).catch(err => console.log("Error on updated channel log => " + err));
+
+            channel.guild.fetchAuditLogs({ type: AuditLogEvent.ChannelOverwriteCreate }).then(async audit => {
+                console.log(audit.entries.first().changes)
+            }).catch(err => console.log("Error on updated channel log => " + err));
+
+            channel.guild.fetchAuditLogs({ type: AuditLogEvent.ChannelOverwriteDelete }).then(async audit => {
+                console.log(audit.entries.first().changes)
+            }).catch(err => console.log("Error on updated channel log => " + err));
+
+            channel.guild.fetchAuditLogs({ type: AuditLogEvent.ChannelOverwriteUpdate }).then(async audit => {
+                console.log(audit.entries.first().changes)
+            }).catch(err => console.log("Error on updated channel log => " + err));
+
         }).catch(err => console.log("Error on updated channel => " + err));
     }
 }

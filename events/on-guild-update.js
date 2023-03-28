@@ -2,15 +2,15 @@ const { Events, EmbedBuilder } = require('discord.js');
 const mysql = require('mysql');
 
 module.exports = {
-    name: Events.MessageDelete,
+    name: Events.GuildUpdate,
 
-    async execute(message) {
+    async execute(oldGuild, newGuild) {
 
-        // Return if it´s empty
-        if (message.content === "") {
-            return;
-        };
-
+        let difference = Object.values(oldChannel)
+                 .filter(x => !Object.values(channel).includes(x))
+                 .concat(Object.values(channel).filter(x => !Object.values(oldChannel).includes(x)));
+        console.log(difference); 
+        
         // DB Connection
         var con = mysql.createPool({
             host: "localhost",
@@ -31,7 +31,7 @@ module.exports = {
                         return;
                     }
 
-                    con.query('SELECT channel FROM log WHERE guildId = ?', [message.guild.id], function (err, result) {
+                    con.query('SELECT channel FROM log WHERE guildId = ?', [newGuild.id], function (err, result) {
                         if (err) {
                             reject(err);
                             return;
@@ -54,17 +54,23 @@ module.exports = {
             // Do anything if there is no log channel set
             if (!channelSetted) return;
             // Fetch the log channel
-            const logChannel = message.client.channels.cache.find(channel => channel.id === channelSetted);
+            const logChannel = newGuild.client.channels.cache.find(channel => channel.id === channelSetted);
 
             // Embed
-            const deletedMessage = new EmbedBuilder()
-                .setColor('#ff806d')
-                .setTitle(`Deleted message at <#${message.channel.id}>`)
-                .setDescription(`**Author**: ${message.member}\n**Content**: ${message.content}`)
-                .setThumbnail(message.member.displayAvatarURL())
-                .setFooter({ text: `${message.guild.name} - Moderation`, iconURL: `${message.guild.iconURL()}` })
+            const channelCreate = new EmbedBuilder()
+                .setColor('#66cdcc')
+                .setTitle(`The guild was updated!`)
+                .setDescription(`Something in the guild config has been changed`)
+                .addFields(
+                    {name: "Old name:", value: `> ${oldChannel.name}`},
+                    {name: "Old category:", value: `> <#${oldChannel.parentId}>`},
+                    {name: "Type:", value: `> ${channelType}`},
+                    {name: "NSFW:", value: `> ${channel.nsfw}`},
+                )
+                .setThumbnail(channel.guild.iconURL())
+                .setFooter({ text: `${newGuild.name} - Moderation`, iconURL: `${newGuild.iconURL()}` })
             // Notify
-            await logChannel.send({ embeds: [deletedMessage] });
-        }).catch(err => console.log("Error on deleted message => " + err));
+            await logChannel.send({ embeds: [channelCreate] });
+        }).catch(err => console.log("Error on updated channel => " + err));
     }
 }

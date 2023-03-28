@@ -1,16 +1,15 @@
-const { Events, EmbedBuilder } = require('discord.js');
+const { Events, EmbedBuilder, AuditLogEvent, GuildBan } = require('discord.js');
 const mysql = require('mysql');
+const moment = require('moment');
 
 module.exports = {
-    name: Events.MessageDelete,
+    name: Events.GuildBanRemove,
 
-    async execute(message) {
-
-        // Return if it´s empty
-        if (message.content === "") {
-            return;
-        };
-
+    async execute(GuildUnban) {
+        // Get the variables
+        const user = GuildUnban.user
+        const guild = GuildUnban.guild;
+        
         // DB Connection
         var con = mysql.createPool({
             host: "localhost",
@@ -31,7 +30,7 @@ module.exports = {
                         return;
                     }
 
-                    con.query('SELECT channel FROM log WHERE guildId = ?', [message.guild.id], function (err, result) {
+                    con.query('SELECT channel FROM log WHERE guildId = ?', [guild.id], function (err, result) {
                         if (err) {
                             reject(err);
                             return;
@@ -53,18 +52,23 @@ module.exports = {
         getLogChannel().then(async channelSetted => {
             // Do anything if there is no log channel set
             if (!channelSetted) return;
-            // Fetch the log channel
-            const logChannel = message.client.channels.cache.find(channel => channel.id === channelSetted);
 
-            // Embed
-            const deletedMessage = new EmbedBuilder()
-                .setColor('#ff806d')
-                .setTitle(`Deleted message at <#${message.channel.id}>`)
-                .setDescription(`**Author**: ${message.member}\n**Content**: ${message.content}`)
-                .setThumbnail(message.member.displayAvatarURL())
-                .setFooter({ text: `${message.guild.name} - Moderation`, iconURL: `${message.guild.iconURL()}` })
-            // Notify
-            await logChannel.send({ embeds: [deletedMessage] });
-        }).catch(err => console.log("Error on deleted message => " + err));
+            // Fetch the log channel
+            const logChannel = guild.client.channels.cache.find(channel => channel.id === channelSetted);
+
+            guild.fetchAuditLogs({ type: AuditLogEvent.MemberUnban }).then(async audit => {
+                // The Log
+                const logUnban = new EmbedBuilder()
+                    .setColor('#fc0335')
+                    .setTitle(`**${user.username} was unbanned**!`)
+                    .setDescription(`**${user.username}** has been pardoned\n> Reason: ${audit.entries.first().reason}\n> Moderator: ${audit.entries.first().executor}`)
+                    .setThumbnail(user.avatarURL())
+                    .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` });
+
+                // Send
+                await logChannel.send({ embeds: [logUnban] });
+            }).catch(err => console.log("Error on unban log => " + err));
+
+        }).catch(err => console.log("Error on unban log => " + err));
     }
 }

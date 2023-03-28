@@ -29,9 +29,6 @@ module.exports = {
             password: process.env.DBPASS,
             database: "kamidb"
         });
-        con.getConnection(function (err) {
-            if (err) throw err;
-        });
 
         // Get log channel
         function getLogChannel() {
@@ -63,8 +60,8 @@ module.exports = {
         // Main
         getLogChannel().then(async channelSetted => {
             // Delete the messages and if there is an error send it
-            await interaction.channel.bulkDelete(ammountMessages).catch(err => {
-                return interaction.reply({ content: 'I couldn´t delete all that messages, blame it on discord :c', ephemeral: true });
+            await interaction.channel.bulkDelete(ammountMessages).catch(async () => {
+                return await interaction.reply({ content: 'I couldn´t delete all that messages, blame it on discord :c', ephemeral: true });
             })
 
             // Notify and log

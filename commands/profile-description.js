@@ -46,11 +46,10 @@ module.exports = {
             });
 
             // Avoid SQL Injection
-            description = description.replace(/"|'|-|;/g, '');
+            description = description.replace(/-|;/g, '');
             try {
                 // Insert in DB
-                let setDescription = `INSERT INTO descriptionimg (guildId, userId, description) VALUES ('${guildId}', '${userId}', '${description}') ON DUPLICATE KEY UPDATE description = '${description}';`;
-                con.query(setDescription, function (err, result) {
+                con.query(`INSERT INTO descriptionimg (guildId, userId, description) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE description = ?;`, [guildId, userId, description, description], function (err, result) {
                     if (err) throw err;
                 })
             } catch {

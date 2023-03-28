@@ -1,5 +1,5 @@
-const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discord.js');
-const Levels = require('discord-xp')
+const { SlashCommandBuilder, AttachmentBuilder } = require('discord.js');
+const Levels = require('discord-xp');
 const Canvas = require('canvas');
 const mysql = require('mysql');
 const { resolve } = require("path");
