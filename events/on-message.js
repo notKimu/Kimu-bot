@@ -1,9 +1,13 @@
 const { Events, EmbedBuilder } = require('discord.js');
 const Levels = require('discord-xp');
 const mysql = require('mysql');
+const fs = require('node:fs');
+const jsonfile = require('jsonfile');
+require('dotenv').config();
+
+
 const messages = require('../src/json/level-up-msg.json');
 const emojis = require('../src/json/emojis.json');
-require('dotenv').config();
 
 module.exports = {
         name: Events.MessageCreate,
@@ -34,14 +38,10 @@ module.exports = {
                 // Get the levels of user
                 const user = await Levels.fetch(message.author.id, message.guild.id);
 
-                // Levels data
-                const levelNum = [5, 10, 20, 30, 40, 50, 60];
-                const levelIds = ["1085224623102251149", "1085225534159597588", "1085225797574475926",
-                        "1085226035580244068", "1085226424060882954", "1085226727380373654", "1085226838529409045"];
-
 
                 // Send level up messages
                 if (newLevel) {
+
                         // Database Connection
                         var con = mysql.createPool({
                                 host: "localhost",
@@ -82,24 +82,43 @@ module.exports = {
                         getLevelChannel().then(async channelSetted => {
                                 const levelChannel = message.client.channels.cache.find(channel => channel.id === channelSetted);
 
-                                for (let i = 0; i < levelNum.length; i++) {
-                                        // If new level and new role
-                                        if (newLevel && user.level == levelNum[i]) {
+                                // Level config of the server
+                                try {
+                                        const levelData = jsonfile.readFileSync(`./src/json/guild-roles/${message.guild.id}.json`);
+                                        if (levelData) {
+                                                const levelNum = Object.keys(levelData[0]);
+                                                const levelIds = Object.values(levelData[0]);
 
-                                                let roleID = levelIds[i];
+                                                for (let i = 0; i < levelNum.length; i++) {
+                                                        // If new level and new role
+                                                        if (newLevel && user.level == levelNum[i]) {
 
-                                                let roleGive = message.member.guild.roles.cache.find(role => role.id === roleID);
-                                                message.member.roles.add(roleGive);
+                                                                let roleID = levelIds[i];
 
-                                                const subirNivelEmbed = new EmbedBuilder()
-                                                        .setTitle('Sudo apt-get upgrade')
-                                                        .setDescription(`${message.member} got upgraded to level **${user.level}** and got access to the role <@&${roleID}>\n` + littleMessage + " " + littleFaces)
-                                                        .setColor(message.member.displayHexColor)
-                                                        .setFooter({ text: `${message.guild.name} - Levels`, iconURL: `${message.guild.iconURL()}` });
-                                                // Send
-                                                return await levelChannel.send({ content: `${message.author}`, embeds: [subirNivelEmbed] })
+                                                                let roleGive = message.member.guild.roles.cache.find(role => role.id === roleID);
+                                                                message.member.roles.add(roleGive);
+
+                                                                const subirNivelEmbed = new EmbedBuilder()
+                                                                        .setTitle('Sudo apt-get upgrade')
+                                                                        .setDescription(`${message.member} got upgraded to level **${user.level}** and got access to the role <@&${roleID}>\n` + littleMessage + " " + littleFaces)
+                                                                        .setColor(message.member.displayHexColor)
+                                                                        .setFooter({ text: `${message.guild.name} - Levels`, iconURL: `${message.guild.iconURL()}` });
+                                                                // Send
+                                                                return await levelChannel.send({ content: `${message.author}`, embeds: [subirNivelEmbed] })
+                                                        }
+                                                }
                                         }
+                                } catch (error) {
+                                        // Normal level up
+                                        const subirNivelEmbed = new EmbedBuilder()
+                                                .setTitle('Sudo apt-get update')
+                                                .setDescription(`${message.member} got updated to level **${user.level}**\n` + littleMessage + " " + littleFaces)
+                                                .setColor(message.member.displayHexColor)
+                                                .setFooter({ text: `${message.guild.name} - Levels`, iconURL: `${message.guild.iconURL()}` });
+                                        // Send
+                                        return await levelChannel.send({ content: `${message.author}`, embeds: [subirNivelEmbed] });
                                 }
+
                                 // Normal level up
                                 const subirNivelEmbed = new EmbedBuilder()
                                         .setTitle('Sudo apt-get update')

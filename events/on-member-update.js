@@ -6,6 +6,7 @@ module.exports = {
     name: Events.GuildMemberUpdate,
 
     async execute(oldMember, newMember) {
+        console.log("v")
         // Get the variables
         const guild = newMember.guild;
 
@@ -64,7 +65,6 @@ module.exports = {
                 oldRoles = oldMember._roles.map(x => "<@&" + x + ">");
                 newRoles = newMember._roles.map(x => "<@&" + x + ">");
                 if (JSON.stringify(oldRoles) === JSON.stringify(newRoles)) rolesChanged = false;
-                console.log(oldRoles, newRoles)
 
                 // Nicknames
                 oldNick = oldMember.nickname;
@@ -92,10 +92,11 @@ module.exports = {
                     timeoutAction = ["unmuted", "Feel the freedom!"]
                 }
 
-               
+
                 // Embeds
                 let updatedMember;
 
+                // If roles changed
                 if (rolesChanged) {
                     updatedMember = new EmbedBuilder()
                         .setColor(newMember.displayHexColor)
@@ -107,6 +108,7 @@ module.exports = {
                         .setThumbnail(newMember.displayAvatarURL())
                         .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` });
 
+                // If nickname changed
                 } else if (nickChaged) {
                     updatedMember = new EmbedBuilder()
                         .setColor(newMember.displayHexColor)
@@ -118,6 +120,7 @@ module.exports = {
                         .setThumbnail(newMember.displayAvatarURL())
                         .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` });
 
+                // If timeout changed
                 } else if (timeoutSet) {
                     updatedMember = new EmbedBuilder()
                         .setColor(newMember.displayHexColor)
@@ -127,22 +130,35 @@ module.exports = {
                         )
                         .setThumbnail(newMember.displayAvatarURL())
                         .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` });
+                // Else
                 } else {
-                    return;
+                    console.log("AJAS")
+                    guild.fetchAuditLogs().then(async audit => {
+                        // Variables
+                        const changes = audit.entries.first().changes;
+                        const executor = audit.entries.first().executor;
+                        // What changed
+                        let changedValues = changes.map(c => `> **${c.key}** was changed from **${c.old}** to **${c.new}**`).join('\n');
+
+                        // Embed
+                        updatedMember = new EmbedBuilder()
+                            .setColor(newMember.displayHexColor)
+                            .setTitle(`A member was edited!`)
+                            .setDescription(`Something in ${newMember} was changed.`)
+                            .addFields(
+                                { name: "Changes:", value: `${changedValues}` },
+                                { name: "ID:", value: `> ${newMember.id}` },
+                                { name: "Moderator:", value: `> ${executor}` },
+                            )
+                            .setThumbnail(guild.iconURL())
+                            .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` })
+                    }).catch(err => console.log("Error on updated member log => " + err));
                 }
 
                 // Send
-                await logChannel.send({ embeds: [updatedMember] });
+                return await logChannel.send({ embeds: [updatedMember] });
             }).catch(err => console.log("Error on update member log => " + err));
 
         }).catch(err => console.log("Error on update member log => " + err));
     }
 }
-
-
-/*
-let difference = Object.values(oldMember)
-                 .filter(x => !Object.values(newMember).includes(x))
-                 .concat(Object.values(newMember).filter(x => !Object.values(oldMember).includes(x)));
-        
-*/

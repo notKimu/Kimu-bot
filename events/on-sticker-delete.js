@@ -1,12 +1,12 @@
-const { AuditLogEvent, Events, EmbedBuilder } = require('discord.js');
+const { Events, EmbedBuilder } = require('discord.js');
 const mysql = require('mysql');
-const fs = require('node:fs')
 
 module.exports = {
-    name: Events.GuildUpdate,
+    name: Events.GuildStickerDelete,
 
-    async execute(oldGuild, guild) {
-
+    async execute(sticker) {
+        // Variables
+        const guild = sticker.guild;
         // DB Connection
         var con = mysql.createPool({
             host: "localhost",
@@ -54,27 +54,24 @@ module.exports = {
 
             guild.fetchAuditLogs().then(async audit => {
                 // Variables
-                const changes = audit.entries.first().changes;
                 const executor = audit.entries.first().executor;
-                // What changed
-                let changedValues = changes.map(c => `> **${c.key}** was changed from **${c.old}** to **${c.new}**`).join('\n');
 
                 // Embed
-                const channelCreate = new EmbedBuilder()
-                    .setColor('#66cdcc')
-                    .setTitle(`The server was changed!`)
-                    .setDescription(`Something in ${guild.name} was updated.`)
+                const stickerCreate = new EmbedBuilder()
+                    .setColor('#fc0335')
+                    .setTitle(`The sticker **${sticker.name}** was deleted!`)
+                    .setDescription(`The sticker **${sticker.name}** was fatally killed.`)
                     .addFields(
-                        { name: "Changes:", value: `${changedValues}` },
-                        { name: "ID:", value: `> ${guild.id}` },
+                        { name: "Name:", value: `> ${sticker.name}` },
+                        { name: "ID:", value: `> ${sticker.id}` },
                         { name: "Moderator:", value: `> ${executor}` },
                     )
                     .setThumbnail(guild.iconURL())
                     .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` })
                 // Notify
-                await logChannel.send({ embeds: [channelCreate] });
-            }).catch(err => console.log("Error on updated guild log => " + err));
+                await logChannel.send({ embeds: [stickerCreate] });
+            }).catch(err => console.log("Error on deleted sticker log => " + err));
 
-        }).catch(err => console.log("Error on updated guild => " + err));
+        }).catch(err => console.log("Error on deleted sticker log => " + err));
     }
 }

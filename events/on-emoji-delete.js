@@ -1,12 +1,13 @@
-const { AuditLogEvent, Events, EmbedBuilder } = require('discord.js');
+const { Events, EmbedBuilder } = require('discord.js');
 const mysql = require('mysql');
-const fs = require('node:fs')
 
 module.exports = {
-    name: Events.GuildUpdate,
+    name: Events.GuildEmojiDelete ,
 
-    async execute(oldGuild, guild) {
-
+    async execute(emoji) {
+        console.log(emoji);
+        // Variables
+        const guild = emoji.guild;
         // DB Connection
         var con = mysql.createPool({
             host: "localhost",
@@ -54,27 +55,24 @@ module.exports = {
 
             guild.fetchAuditLogs().then(async audit => {
                 // Variables
-                const changes = audit.entries.first().changes;
                 const executor = audit.entries.first().executor;
-                // What changed
-                let changedValues = changes.map(c => `> **${c.key}** was changed from **${c.old}** to **${c.new}**`).join('\n');
 
                 // Embed
-                const channelCreate = new EmbedBuilder()
-                    .setColor('#66cdcc')
-                    .setTitle(`The server was changed!`)
-                    .setDescription(`Something in ${guild.name} was updated.`)
+                const emojiCreate = new EmbedBuilder()
+                    .setColor('#fc0335')
+                    .setTitle(`The emoji **${emoji.name}** was deleted!`)
+                    .setDescription(`The emoji ${emoji} was fatally killed.`)
                     .addFields(
-                        { name: "Changes:", value: `${changedValues}` },
-                        { name: "ID:", value: `> ${guild.id}` },
+                        { name: "Name:", value: `> ${emoji.name}` },
+                        { name: "ID:", value: `> ${emoji.id}` },
                         { name: "Moderator:", value: `> ${executor}` },
                     )
                     .setThumbnail(guild.iconURL())
                     .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` })
                 // Notify
-                await logChannel.send({ embeds: [channelCreate] });
-            }).catch(err => console.log("Error on updated guild log => " + err));
+                await logChannel.send({ embeds: [emojiCreate] });
+            }).catch(err => console.log("Error on emoji delete log => " + err));
 
-        }).catch(err => console.log("Error on updated guild => " + err));
+        }).catch(err => console.log("Error on emoji delete channel => " + err));
     }
 }

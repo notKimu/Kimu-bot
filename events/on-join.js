@@ -75,7 +75,6 @@ module.exports = {
             welcome.create = Canvas.createCanvas(700, 343);
             welcome.context = welcome.create.getContext('2d');
             // Load bg image
-            console.log(welcomeData.image)
             try {
                 const background = await Canvas.loadImage(welcomeData.image);
                 welcome.context.drawImage(background, 0, 0, 700, 343);

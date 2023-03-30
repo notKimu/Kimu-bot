@@ -1,11 +1,13 @@
-const { AuditLogEvent, Events, EmbedBuilder } = require('discord.js');
+const { Events, EmbedBuilder } = require('discord.js');
 const mysql = require('mysql');
-const fs = require('node:fs')
 
 module.exports = {
-    name: Events.GuildUpdate,
+    name: Events.GuildRoleUpdate,
 
-    async execute(oldGuild, guild) {
+    async execute(oldRole, role) {
+        if (role.name === "Kαmi") return;
+        // Variables
+        const guild = role.guild;
 
         // DB Connection
         var con = mysql.createPool({
@@ -61,20 +63,20 @@ module.exports = {
 
                 // Embed
                 const channelCreate = new EmbedBuilder()
-                    .setColor('#66cdcc')
-                    .setTitle(`The server was changed!`)
-                    .setDescription(`Something in ${guild.name} was updated.`)
+                    .setColor(role.color)
+                    .setTitle(`The role ${oldRole.name} was changed!`)
+                    .setDescription(`Something in **${oldRole.name}** was updated.`)
                     .addFields(
                         { name: "Changes:", value: `${changedValues}` },
-                        { name: "ID:", value: `> ${guild.id}` },
+                        { name: "ID:", value: `> ${role.id}` },
                         { name: "Moderator:", value: `> ${executor}` },
                     )
                     .setThumbnail(guild.iconURL())
                     .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` })
                 // Notify
-                await logChannel.send({ embeds: [channelCreate] });
-            }).catch(err => console.log("Error on updated guild log => " + err));
+                return await logChannel.send({ embeds: [channelCreate] });
+            }).catch(err => console.log("Error on updated role log => " + err));
 
-        }).catch(err => console.log("Error on updated guild => " + err));
+        }).catch(err => console.log("Error on role channel => " + err));
     }
 }

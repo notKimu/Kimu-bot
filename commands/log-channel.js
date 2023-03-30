@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { ChannelType, SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const mysql = require('mysql');
 const dotenv = require('dotenv').config();
 
@@ -8,7 +8,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('log-channel')
         .addChannelOption(option =>
-            option.setName('channel').setDescription('Activate and select a channel for the log system!').setRequired(true))
+            option.setName('channel').setDescription('Activate and select a channel for the log system!').setRequired(true).addChannelTypes(ChannelType.GuildText))
         .setDescription('Set where you want the log messages to be sent')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
@@ -18,10 +18,6 @@ module.exports = {
 
         //Get user input
         const channel = interaction.options.getChannel('channel');
-        // Check if the channel is a text channel
-        if (channel.type !== 0) {
-            return await interaction.reply({ content: `Sorry but the channel must be a text channel! <a:bobo_bobo:1090018396902535199>`, ephemeral: true });
-        }
         // Database Connection
         var con = mysql.createPool({
             host: "localhost",

@@ -17,7 +17,7 @@ module.exports = {
 		} catch (error) {
 			console.error(`[WARNING] I had an error executing this command: ${interaction.commandName}`);
 			console.error(error);
-			return interaction.reply("Sorry! There was an internal error, please try again '^^");
+			return interaction.reply({ content: "Sorry! There was an internal error, please try again '^^", ephemeral: true });
 		}
 	},
 };

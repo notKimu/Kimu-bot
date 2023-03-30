@@ -3,10 +3,11 @@ const mysql = require('mysql');
 const fs = require('node:fs')
 
 module.exports = {
-    name: Events.ChannelUpdate,
+    name: Events.GuildRoleCreate,
 
-    async execute(oldChannel, channel) {
-
+    async execute(role) {
+        // Variables
+        const guild = role.guild;
         // DB Connection
         var con = mysql.createPool({
             host: "localhost",
@@ -27,7 +28,7 @@ module.exports = {
                         return;
                     }
 
-                    con.query('SELECT channel FROM log WHERE guildId = ?', [channel.guild.id], function (err, result) {
+                    con.query('SELECT channel FROM log WHERE guildId = ?', [guild.id], function (err, result) {
                         if (err) {
                             reject(err);
                             return;
@@ -50,45 +51,24 @@ module.exports = {
             // Do anything if there is no log channel set
             if (!channelSetted) return;
             // Fetch the log channel
-            const logChannel = channel.guild.client.channels.cache.find(channel => channel.id === channelSetted);
-            // Check channel type [OH SHIT SPAGHETTI]
-            let channelType = "Undefined";
-            if (channel.type === 0) {
-                channelType = "Text Channel"
-            } else if (channel.type === 2) {
-                channelType = "Voice Channel"
-            } else if (channel.type === 15) {
-                channelType = "Forum Channel"
-            } else if (channel.type === 4) {
-                channelType = "Category"
-            } else if (channel.type === 5) {
-                channelType = "Server Announcements"
-            } else if (channel.type === 13) {
-                channelType = "Voice Stage"
-            } else if (channel.type === 14) {
-                channelType = "Server Directory"
-            };
+            const logChannel = guild.client.channels.cache.find(channel => channel.id === channelSetted);
 
-            channel.guild.fetchAuditLogs().then(async audit => {
+            guild.fetchAuditLogs().then(async audit => {
                 // Variables
-                const changes = audit.entries.first().changes;
                 const executor = audit.entries.first().executor;
-
-                let changedValues = changes.map(c => `${c.key} is changet from ${c.old} to ${c.new}`).join('\n');
 
                 // Embed
                 const channelCreate = new EmbedBuilder()
-                    .setColor('#66cdcc')
-                    .setTitle(`A channel was updated! <#${channel.id}>`)
-                    .setDescription(`Channel <#${channel.id}> was updated at the <#${channel.parentId}> category.`)
+                    .setColor('#66cc66')
+                    .setTitle(`The role **${role.name}** was created!`)
+                    .setDescription(`The new role is named ${role}.`)
                     .addFields(
-                        { name: "Changes:", value: `> ${changes.map(c => `**${c.key}** was changed from **${c.old}** to **${c.new}**`).join('\n')}` },
-                        { name: "Type:", value: `> ${channelType}` },
-                        { name: "ID:", value: `> ${channel.id}` },
+                        { name: "Name:", value: `> ${role.name}` },
+                        { name: "ID:", value: `> ${role.id}` },
                         { name: "Moderator:", value: `> ${executor}` },
                     )
-                    .setThumbnail(channel.guild.iconURL())
-                    .setFooter({ text: `${channel.guild.name} - Moderation`, iconURL: `${channel.guild.iconURL()}` })
+                    .setThumbnail(guild.iconURL())
+                    .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` })
                 // Notify
                 await logChannel.send({ embeds: [channelCreate] });
             }).catch(err => console.log("Error on updated channel log => " + err));
