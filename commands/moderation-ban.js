@@ -30,6 +30,7 @@ module.exports = {
         let deleteMessageDays = interaction.options.getInteger("days-delete");
         if (!deleteMessageDays) deleteMessageDays = 0;
         const reason = interaction.options.getString("reason");
+        const guildIcon = interaction.guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
 
 
         // Funy stuff
@@ -56,7 +57,7 @@ module.exports = {
             .setTitle(`Banned ${member.displayName}!`)
             .setDescription(`${member.displayName} was banned\n> Joined on **${moment.utc(member.joinedAt).format('DD/MM/YY')}**\n> Reason: ${reason}\n> Days of messages deleted: ${deleteMessageDays}`)
             .setThumbnail(member.displayAvatarURL())
-            .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${interaction.guild.iconURL()}` });
+            .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${guildIcon}` });
 
 
         // Send the log and confirmation

@@ -81,6 +81,8 @@ module.exports = {
 
                         getLevelChannel().then(async channelSetted => {
                                 const levelChannel = message.client.channels.cache.find(channel => channel.id === channelSetted);
+                                const guildIcon = message.guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
+
 
                                 // Level config of the server
                                 try {
@@ -102,7 +104,7 @@ module.exports = {
                                                                         .setTitle('Sudo apt-get upgrade')
                                                                         .setDescription(`${message.member} got upgraded to level **${user.level}** and got access to the role <@&${roleID}>\n` + littleMessage + " " + littleFaces)
                                                                         .setColor(message.member.displayHexColor)
-                                                                        .setFooter({ text: `${message.guild.name} - Levels`, iconURL: `${message.guild.iconURL()}` });
+                                                                        .setFooter({ text: `${message.guild.name} - Levels`, iconURL: `${guildIcon}` });
                                                                 // Send
                                                                 return await levelChannel.send({ content: `${message.author}`, embeds: [subirNivelEmbed] })
                                                         }
@@ -114,7 +116,7 @@ module.exports = {
                                                 .setTitle('Sudo apt-get update')
                                                 .setDescription(`${message.member} got updated to level **${user.level}**\n` + littleMessage + " " + littleFaces)
                                                 .setColor(message.member.displayHexColor)
-                                                .setFooter({ text: `${message.guild.name} - Levels`, iconURL: `${message.guild.iconURL()}` });
+                                                .setFooter({ text: `${message.guild.name} - Levels`, iconURL: `${guildIcon}` });
                                         // Send
                                         return await levelChannel.send({ content: `${message.author}`, embeds: [subirNivelEmbed] });
                                 }
@@ -124,7 +126,7 @@ module.exports = {
                                         .setTitle('Sudo apt-get update')
                                         .setDescription(`${message.member} got updated to level **${user.level}**\n` + littleMessage + " " + littleFaces)
                                         .setColor(message.member.displayHexColor)
-                                        .setFooter({ text: `${message.guild.name} - Levels`, iconURL: `${message.guild.iconURL()}` });
+                                        .setFooter({ text: `${message.guild.name} - Levels`, iconURL: `${guildIcon}` });
                                 // Send
                                 return await levelChannel.send({ content: `${message.author}`, embeds: [subirNivelEmbed] });
                         }).catch(error => {

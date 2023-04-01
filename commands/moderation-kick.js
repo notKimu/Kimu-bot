@@ -27,6 +27,7 @@ module.exports = {
             return await interaction.reply({ content: "I don´t think that user is from this server! <:michiru_toast:1087450095047409734>", ephemeral: true });
         }
         const reason = interaction.options.getString("reason");
+        const guildIcon = interaction.guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
 
 
         // Funy stuff
@@ -90,7 +91,7 @@ module.exports = {
                 .setTitle(`Kicked ${member.displayName}!`)
                 .setDescription(`${member.displayName} was kicked\n> Joined on **${moment.utc(member.joinedAt).format('DD/MM/YY')}**\n> Reason: ${reason}`)
                 .setThumbnail(member.displayAvatarURL())
-                .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${interaction.guild.iconURL()}` });
+                .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${guildIcon}` });
 
 
             // Fetch the log channel if there is one configured
@@ -106,7 +107,7 @@ module.exports = {
                     .setTitle(`Kicked ${member.displayName}!`)
                     .setDescription(`${member.displayName} was kicked\n> Joined on **${moment.utc(member.joinedAt).format('DD/MM/YY')}**\n> Reason: ${reason}\nModerator: <@${interaction.member.id}>`)
                     .setThumbnail(member.displayAvatarURL())
-                    .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${interaction.guild.iconURL()}` });
+                    .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${guildIcon}` });
                 // Send
                 await logChannel.send({ embeds: [logKick] });
             }

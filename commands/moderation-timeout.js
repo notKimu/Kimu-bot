@@ -39,6 +39,7 @@ module.exports = {
         const time = interaction.options.getInteger("time");
         const timeUnit = interaction.options.getInteger("time-unit");
         const reason = interaction.options.getString("reason");
+        const guildIcon = interaction.guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
 
         // Max is 20 days and minimum 1 of something
         if (time * timeUnit * 1000 > "1728000000") {
@@ -82,7 +83,7 @@ module.exports = {
             .setTitle(`Muted ${member.displayName} for **${time}** ${timeAmmount}!`)
             .setDescription(`${member.displayName} was muted\n> Muted for **${time}** ${timeAmmount}\n> Reason: ${reason}`)
             .setThumbnail(member.displayAvatarURL())
-            .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${interaction.guild.iconURL()}` });
+            .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${guildIcon}` });
 
 
         // Fetch the log channel if there is one configured

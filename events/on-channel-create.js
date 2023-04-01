@@ -6,6 +6,8 @@ module.exports = {
 
     async execute(channel) {
 
+        const guildIcon = channel.guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
+
         // DB Connection
         var con = mysql.createPool({
             host: "localhost",
@@ -82,8 +84,8 @@ module.exports = {
                         { name: "ID:", value: `> ${channel.id}` },
                         { name: "Moderator:", value: `> ${audit.entries.first().executor}` },
                     )
-                    .setThumbnail(channel.guild.iconURL())
-                    .setFooter({ text: `${channel.guild.name} - Moderation`, iconURL: `${channel.guild.iconURL()}` })
+                    .setThumbnail(guildIcon)
+                    .setFooter({ text: `${channel.guild.name} - Moderation`, iconURL: `${guildIcon}` })
                 // Notify
                 await logChannel.send({ embeds: [channelCreate] });
             }).catch(err => console.log("Error on created channel => " + err));

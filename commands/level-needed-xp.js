@@ -15,6 +15,7 @@ module.exports = {
         if (timeoutUsers.includes(interaction.user.id)) return interaction.reply({ content: 'You have to wait before using this command again! <:nose:1085261670043103232>', ephemeral: true });
 
         // Variables
+        const guildIcon = interaction.guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
         const level = interaction.options.getInteger('level');
         const target = await Levels.fetch(interaction.user.id, interaction.guild.id);
         let xpLeft;
@@ -32,7 +33,7 @@ module.exports = {
                 {name: "You have:", value: `${target.xp}XP`},
                 {name: "You need:", value: `${xpLeft}XP more!`},
             )
-            .setFooter({ text: `${interaction.guild.name} - Levels`, iconURL: `${interaction.guild.iconURL()}` });
+            .setFooter({ text: `${interaction.guild.name} - Levels`, iconURL: `${guildIcon}` });
 
 
         // Send

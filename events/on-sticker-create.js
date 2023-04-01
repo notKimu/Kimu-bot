@@ -7,6 +7,8 @@ module.exports = {
     async execute(sticker) {
         // Variables
         const guild = sticker.guild;
+        const guildIcon = guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
+
         // DB Connection
         var con = mysql.createPool({
             host: "localhost",
@@ -66,8 +68,8 @@ module.exports = {
                         { name: "ID:", value: `> ${sticker.id}` },
                         { name: "Moderator:", value: `> ${executor}` },
                     )
-                    .setThumbnail(guild.iconURL())
-                    .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` })
+                    .setThumbnail(guildIcon)
+                    .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guildIcon}` })
                 // Notify
                 await logChannel.send({ embeds: [stickerCreate], stickers: [sticker] });
             }).catch(err => console.log("Error on created sticker log => " + err));

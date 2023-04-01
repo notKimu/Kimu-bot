@@ -16,6 +16,7 @@ module.exports = {
         if (timeoutUsers.includes(interaction.user.id)) return interaction.reply({ content: 'You have to wait before using this command again! <:nose:1085261670043103232>', ephemeral: true });
         // Get input
         const ammountMessages = interaction.options.getInteger('messages');
+        const guildIcon = interaction.guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
 
         // Avoid deleting too much messages or 0
         if (ammountMessages > 100 || ammountMessages < 1) {
@@ -76,7 +77,7 @@ module.exports = {
                     .setTitle(`Bulk delete at <#${interaction.channel.id}>!`)
                     .setDescription(`Moderator: <@${interaction.member.id}>\nAmmount: **${ammountMessages}** messages deleted`)
                     .setThumbnail(interaction.member.displayAvatarURL())
-                    .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${interaction.guild.iconURL()}` });
+                    .setFooter({ text: `${interaction.guild.name} - Moderation`, iconURL: `${guildIcon}` });
                 // Send
                 await logChannel.send({ embeds: [logPurge] });
             }

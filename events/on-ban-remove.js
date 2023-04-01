@@ -9,6 +9,7 @@ module.exports = {
         // Get the variables
         const user = GuildUnban.user
         const guild = GuildUnban.guild;
+        const guildIcon = guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
         
         // DB Connection
         var con = mysql.createPool({
@@ -63,7 +64,7 @@ module.exports = {
                     .setTitle(`**${user.username} was unbanned**!`)
                     .setDescription(`**${user.username}** has been pardoned\n> Reason: ${audit.entries.first().reason}\n> Moderator: ${audit.entries.first().executor}`)
                     .setThumbnail(user.avatarURL())
-                    .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` });
+                    .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guildIcon}` });
 
                 // Send
                 await logChannel.send({ embeds: [logUnban] });

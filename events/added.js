@@ -5,6 +5,7 @@ module.exports = {
 
     async execute(guild) {
 
+        // Send the owner a message
         const owner = await guild.members.fetch(guild.ownerId);
 
         const heyEmbed = new EmbedBuilder()
@@ -23,11 +24,12 @@ module.exports = {
         
         await owner.send({ embeds: [heyEmbed]})
 
-
+        
+        // Create channel for admins
         const configEmbed = new EmbedBuilder()
         .setColor('#bd62c9')
         .setTitle(`Hi admins of ${guild.name} ^^`)
-        .setDescription(`Thanks for letting me be part of your server! I want to help you get started...\nTo activate my logs use **/log-channel** and choose a channel!\n\nBy default both welcome messages and level up messages are sent to ${guild.systemChannel}, if you want to change that you can use **/welcome-channel** and **/level-channel**\n\nTalking about roles... If you want to set custom roles when a user reaches a level use the **/level-config**!\n\nI hope I can help here, thanks again!!`)
+        .setDescription(`Thanks for letting me be part of your server! I want to help you get started...\nTo activate my logs use **/log-channel** and choose a channel!\n\nBy default both welcome messages and level up messages are sent to ${guild.systemChannel}, if you want to change that you can use **/welcome-channel** and **/level-channel**\n\nTalking about roles... If you want to set custom roles when a user reaches a level use the **/reward-add** command!\n\nI hope I can help here, thanks again!!`)
         .addFields(
             {name: "Docs:", value: "> [Github wiki](https://github.com/KomradeFMX/Kimu-bot/wiki)"},
             {name: "Server:", value: "> [./Kaskade.sv](https://discord.gg/NfeXrQdXdE)"},

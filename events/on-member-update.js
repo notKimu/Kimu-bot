@@ -9,6 +9,8 @@ module.exports = {
         console.log("v")
         // Get the variables
         const guild = newMember.guild;
+        const guildIcon = guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
+
 
         // DB Connection
         var con = mysql.createPool({
@@ -106,7 +108,7 @@ module.exports = {
                             { name: "New roles:", value: `> ${newRoles}` },
                         )
                         .setThumbnail(newMember.displayAvatarURL())
-                        .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` });
+                        .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guildIcon}` });
 
                 // If nickname changed
                 } else if (nickChaged) {
@@ -118,7 +120,7 @@ module.exports = {
                             { name: "New nickname:", value: `> ${newNick}` },
                         )
                         .setThumbnail(newMember.displayAvatarURL())
-                        .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` });
+                        .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guildIcon}` });
 
                 // If timeout changed
                 } else if (timeoutSet) {
@@ -129,7 +131,7 @@ module.exports = {
                             { name: timeoutAction[1], value: `> **${timeout}**` },
                         )
                         .setThumbnail(newMember.displayAvatarURL())
-                        .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` });
+                        .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guildIcon}` });
                 // Else
                 } else {
                     console.log("AJAS")
@@ -150,8 +152,8 @@ module.exports = {
                                 { name: "ID:", value: `> ${newMember.id}` },
                                 { name: "Moderator:", value: `> ${executor}` },
                             )
-                            .setThumbnail(guild.iconURL())
-                            .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` })
+                            .setThumbnail(guildIcon)
+                            .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guildIcon}` })
                     }).catch(err => console.log("Error on updated member log => " + err));
                 }
 

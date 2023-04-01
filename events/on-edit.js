@@ -11,6 +11,8 @@ module.exports = {
             return;
         };
 
+        const guildIcon = newMessage.guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
+
         // DB Connection
         var con = mysql.createPool({
             host: "localhost",
@@ -62,7 +64,7 @@ module.exports = {
                 .setTitle(`Edited message at <#${newMessage.channel.id}>`)
                 .setDescription(`**Author**: ${newMessage.member}\n**Old Message**: ${oldMessage.content}\n**New message**: ${newMessage.content}`)
                 .setThumbnail(newMessage.member.displayAvatarURL())
-                .setFooter({ text: `${newMessage.guild.name} - Moderation`, iconURL: `${newMessage.guild.iconURL()}` })
+                .setFooter({ text: `${newMessage.guild.name} - Moderation`, iconURL: `${guildIcon}` })
             // Notify
             await logChannel.send({ embeds: [editedMessage] });
         }).catch(err => console.log("Error on edited message => " + err));

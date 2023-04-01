@@ -7,6 +7,9 @@ module.exports = {
 
     async execute(oldChannel, channel) {
 
+        const guildIcon = channel.guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
+
+
         // DB Connection
         var con = mysql.createPool({
             host: "localhost",
@@ -74,21 +77,19 @@ module.exports = {
                 const changes = audit.entries.first().changes;
                 const executor = audit.entries.first().executor;
 
-                let changedValues = changes.map(c => `${c.key} is changet from ${c.old} to ${c.new}`).join('\n');
-
                 // Embed
                 const channelCreate = new EmbedBuilder()
                     .setColor('#66cdcc')
                     .setTitle(`A channel was updated! <#${channel.id}>`)
                     .setDescription(`Channel <#${channel.id}> was updated at the <#${channel.parentId}> category.`)
                     .addFields(
-                        { name: "Changes:", value: `> ${changes.map(c => `**${c.key}** was changed from **${c.old}** to **${c.new}**`).join('\n')}` },
+                        { name: "Changes:", value: `> ${changes.map(c => `**${c.key}** was changed from **${c.old}** to **${c.new}**`).join('\n> ')}` },
                         { name: "Type:", value: `> ${channelType}` },
                         { name: "ID:", value: `> ${channel.id}` },
                         { name: "Moderator:", value: `> ${executor}` },
                     )
-                    .setThumbnail(channel.guild.iconURL())
-                    .setFooter({ text: `${channel.guild.name} - Moderation`, iconURL: `${channel.guild.iconURL()}` })
+                    .setThumbnail(guildIcon)
+                    .setFooter({ text: `${channel.guild.name} - Moderation`, iconURL: `${guildIcon}` })
                 // Notify
                 await logChannel.send({ embeds: [channelCreate] });
             }).catch(err => console.log("Error on updated channel log => " + err));

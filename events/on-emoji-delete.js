@@ -8,6 +8,8 @@ module.exports = {
         console.log(emoji);
         // Variables
         const guild = emoji.guild;
+        const guildIcon = emoji.guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
+
         // DB Connection
         var con = mysql.createPool({
             host: "localhost",
@@ -67,8 +69,8 @@ module.exports = {
                         { name: "ID:", value: `> ${emoji.id}` },
                         { name: "Moderator:", value: `> ${executor}` },
                     )
-                    .setThumbnail(guild.iconURL())
-                    .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` })
+                    .setThumbnail(guildIcon)
+                    .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guildIcon}` })
                 // Notify
                 await logChannel.send({ embeds: [emojiCreate] });
             }).catch(err => console.log("Error on emoji delete log => " + err));

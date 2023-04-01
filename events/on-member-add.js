@@ -161,29 +161,36 @@ module.exports = {
 
             // Random message
             welcome.context.font = '27px Kanit';
-            welcome.context.fillText(welcomeMessages[random(0, welcomeMessages.length)], 258, 257);
-
+            welcome.context.fillText(
+                welcomeMessages[random(0, welcomeMessages.length)]
+                .replace('{server}', member.guild.name), 258, 257
+            );
 
             // Load image to buffer
             let finalImage = new AttachmentBuilder(welcome.create.toBuffer('image/png'), { name: `log_${member.user.id}.png` });
 
+
             // Send message
             try {
                 let welcomeMessageRaw = welcomeData.message;
+                
                 let welcomeMessage = welcomeMessageRaw.replace('{member}', `<@${member.id}>`)
-                    .replace('{name}', member.username)
+                    .replace('{member.name}', member.user.username)
+                    .replace('{discriminator}', `#${member.user.discriminator}`)
                     .replace('{server}', member.guild.name);
+
+                // Send the image and message
                 await welcomeChannel.send({
                     content: welcomeMessage,
                     files: [finalImage]
                 });
             } catch {
+                // If there is not a message configured just send the default
                 await welcomeChannel.send({
                     content: `Welcome to ${member.guild.name}, ${member}!`,
                     files: [finalImage]
                 });
             };
-            // welcome.context.clearRect(0, 0, 700, 343);
         })
 
     },

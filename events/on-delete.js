@@ -6,6 +6,8 @@ module.exports = {
 
     async execute(message) {
 
+        const guildIcon = message.guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
+
         // Return if it´s empty
         if (message.content === "") {
             return;
@@ -62,7 +64,7 @@ module.exports = {
                 .setTitle(`Deleted message at <#${message.channel.id}>`)
                 .setDescription(`**Author**: ${message.member}\n**Content**: ${message.content}`)
                 .setThumbnail(message.member.displayAvatarURL())
-                .setFooter({ text: `${message.guild.name} - Moderation`, iconURL: `${message.guild.iconURL()}` })
+                .setFooter({ text: `${message.guild.name} - Moderation`, iconURL: `${guildIcon}` })
             // Notify
             await logChannel.send({ embeds: [deletedMessage] });
         }).catch(err => console.log("Error on deleted message => " + err));

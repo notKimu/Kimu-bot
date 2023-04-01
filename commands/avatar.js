@@ -15,6 +15,8 @@ module.exports = {
 
 		// Get input
 		const user = interaction.options.getUser('member') || interaction.user;
+        const guildIcon = interaction.guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
+
 		// Return if user is not from the server
 		try {
 			var member = await interaction.guild.members.fetch(user.id);
@@ -29,7 +31,7 @@ module.exports = {
 			.setTitle(`This is the avatar of ${member.user.username}!`)
 			.setDescription(`[PNG](${member.displayAvatarURL({ extension: "png", size: 1024 })}) | [JPG](${member.displayAvatarURL({ extension: "jpg", size: 1024 })}) | [GIF](${member.displayAvatarURL({ extension: "gif", size: 1024 })})`)
 			.setImage(member.displayAvatarURL({ extension: "png", size: 1024 }))
-			.setFooter({ text: `${interaction.guild.name} - Members`, iconURL: `${interaction.guild.iconURL()}` })
+			.setFooter({ text: `${interaction.guild.name} - Members`, iconURL: `${guildIcon}` })
 		// Reply
 		await interaction.reply({ embeds: [avatarEmbed] });
 

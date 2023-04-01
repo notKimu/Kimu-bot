@@ -9,6 +9,7 @@ module.exports = {
         // Get the variables
         const user = GuildBan.user
         const guild = GuildBan.guild;
+        const guildIcon = guild.iconURL() || "https://cdn.discordapp.com/attachments/1032544028115349564/1090962651661742130/icon.png";
         
         // DB Connection
         var con = mysql.createPool({
@@ -63,7 +64,7 @@ module.exports = {
                     .setTitle(`**${user.username} was banned**!`)
                     .setDescription(`**${user.username}** has been banned\n> Joined at **${moment.utc(user.joinedAt).format('DD/MM/YY')}**\n> Reason: ${audit.entries.first().reason}\n> Moderator: ${audit.entries.first().executor}`)
                     .setThumbnail(user.avatarURL())
-                    .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guild.iconURL()}` });
+                    .setFooter({ text: `${guild.name} - Moderation`, iconURL: `${guildIcon}` });
 
                 // Send
                 await logChannel.send({ embeds: [logBan] });
