@@ -6,10 +6,10 @@ var timeoutUsers = [];
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('hug')
-        .setDescription('Hug someone and make them feel loved!')
+        .setName('kiss')
+        .setDescription('Kiss someone to show how much you love them!')
         .addUserOption(option =>
-            option.setName('member').setDescription('Who do you want to hug c:').setRequired(true)),
+            option.setName('member').setDescription('Who do you want to kiss c:').setRequired(true)),
 
 
     async execute(interaction) {
@@ -24,7 +24,7 @@ module.exports = {
             return Math.floor(Math.random() * (max - min) + min);
         };
 
-        // Get the member to hug
+        // Get the member to kiss
         const user = interaction.options.getUser('member');
         try {
             var member = await interaction.guild.members.fetch(user.id);
@@ -32,19 +32,19 @@ module.exports = {
             return await interaction.reply({ content: "I don´t think that user is from this server! <:michiru_toast:1087450095047409734>", ephemeral: true });
         };
 
-        if (member === interaction.member) return interaction.reply({ content: 'It´s very sad to hug yourself :c', ephemeral: true });
-        if (member.bot) return interaction.reply({ content: 'You can´t hug a bot!', ephemeral: true });
+        if (member === interaction.member) return interaction.reply({ content: 'You sure you want to kiss yourself?', ephemeral: true });
+        if (member.bot) return interaction.reply({ content: 'You can´t kiss a bot, I mean you can... But no', ephemeral: true });
 
         // Get the gifs from the aray
-        let hugGifs = rolePlayArray[0].images.hugs;
+        let kissGifs = rolePlayArray[0].images.kisses;
 
         // The embed with a random gif
-        const hugEmbed = new EmbedBuilder()
+        const kissEmbed = new EmbedBuilder()
             .setColor(interaction.guild.members.me.displayHexColor)
-            .setImage(hugGifs[randomValue(0, hugGifs.length)])
+            .setImage(kissGifs[randomValue(0, kissGifs.length)])
             .setFooter({ text: `${interaction.guild.name} - Role Play`, iconURL: `${interaction.guild.iconURL()}` });
-
-        await interaction.reply({ content: `**${interaction.member.displayName}** gave a hug to ${member} iwi`, embeds: [hugEmbed] });
+        // Reply
+        await interaction.reply({ content: `**${interaction.member.displayName}** kissed ${member} ewe`, embeds: [kissEmbed] });
 
 
         // Add a timeout to the command

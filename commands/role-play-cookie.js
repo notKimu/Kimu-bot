@@ -17,14 +17,14 @@ module.exports = {
         // Check if user is on cooldown
         if (timeoutUsers.includes(interaction.user.id)) return interaction.reply({ content: 'You have to wait before using this command again! <:nose:1085261670043103232>', ephemeral: true });
 
-        //Función para escoger un número entre dos valores (min y max)
+        // Function to get a random value
         function randomValue(min, max) {
             min = Math.ceil(min);
             max = Math.floor(max);
             return Math.floor(Math.random() * (max - min) + min);
         };
 
-        //Obtener al member que se quiere abrazar
+        // Get the member to give a cookie
         const user = interaction.options.getUser('member');
         try {
             var member = await interaction.guild.members.fetch(user.id);
@@ -32,18 +32,21 @@ module.exports = {
             return await interaction.reply({ content: "I don´t think that user is from this server! <:michiru_toast:1087450095047409734>", ephemeral: true });
         }
 
-        if (member == interaction.member) return interaction.reply({ content: 'No te puedes dar una galletita a tí mism@', ephemeral: true });
+        let gaveMeACookie = "";
+        if (member == interaction.guild.members.me) gaveMeACookie = "Thanks <3"; // Thank the user if they give me a cookie -w-
+        if (member == interaction.member) return interaction.reply({ content: 'You can´t give a cookie to yourself, that´s very selfish!', ephemeral: true });
+        if (member.bot) return interaction.reply({ content: 'You can´t give a cookie to a bot, they can´t eat, goofy!', ephemeral: true });
 
-        //Obtener la lista del array en el JSON
+        // Get the gifs from the array
         let cookieGifs = rolePlayArray[0].images.cookies;
 
-        //El embed con el gif correspondiente
+        // The embed with a random gif
         const cookieEmbed = new EmbedBuilder()
             .setColor(interaction.guild.members.me.displayHexColor)
             .setImage(cookieGifs[randomValue(0, cookieGifs.length)])
             .setFooter({ text: `${interaction.guild.name} - Role Play`, iconURL: `${interaction.guild.iconURL()}` });
 
-        await interaction.reply({ content: `**${interaction.member.displayName}** gave a cookie to ${member} owo`, embeds: [cookieEmbed] });
+        await interaction.reply({ content: `**${interaction.member.displayName}** gave a cookie to ${member} ${gaveMeACookie} owo`, embeds: [cookieEmbed] });
 
         // Add a timeout to the command
         timeoutUsers.push(interaction.user.id);

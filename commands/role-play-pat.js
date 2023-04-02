@@ -6,10 +6,10 @@ var timeoutUsers = [];
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('hug')
-        .setDescription('Hug someone and make them feel loved!')
+        .setName('pat')
+        .setDescription('Comfort someone by patting them ^^')
         .addUserOption(option =>
-            option.setName('member').setDescription('Who do you want to hug c:').setRequired(true)),
+            option.setName('member').setDescription('The person you want to pat c:').setRequired(true)),
 
 
     async execute(interaction) {
@@ -24,7 +24,7 @@ module.exports = {
             return Math.floor(Math.random() * (max - min) + min);
         };
 
-        // Get the member to hug
+        // Get the member to pat
         const user = interaction.options.getUser('member');
         try {
             var member = await interaction.guild.members.fetch(user.id);
@@ -32,19 +32,19 @@ module.exports = {
             return await interaction.reply({ content: "I don´t think that user is from this server! <:michiru_toast:1087450095047409734>", ephemeral: true });
         };
 
-        if (member === interaction.member) return interaction.reply({ content: 'It´s very sad to hug yourself :c', ephemeral: true });
-        if (member.bot) return interaction.reply({ content: 'You can´t hug a bot!', ephemeral: true });
+        if (member === interaction.member) return interaction.reply({ content: 'You want to pat yourself??', ephemeral: true });
+        if (member.bot) return interaction.reply({ content: 'You can´t pat a bot, that´s dangerous!', ephemeral: true });
 
         // Get the gifs from the aray
-        let hugGifs = rolePlayArray[0].images.hugs;
+        let patGifs = rolePlayArray[0].images.pats;
 
         // The embed with a random gif
-        const hugEmbed = new EmbedBuilder()
+        const patEmbed = new EmbedBuilder()
             .setColor(interaction.guild.members.me.displayHexColor)
-            .setImage(hugGifs[randomValue(0, hugGifs.length)])
+            .setImage(patGifs[randomValue(0, patGifs.length)])
             .setFooter({ text: `${interaction.guild.name} - Role Play`, iconURL: `${interaction.guild.iconURL()}` });
-
-        await interaction.reply({ content: `**${interaction.member.displayName}** gave a hug to ${member} iwi`, embeds: [hugEmbed] });
+        // Reply
+        await interaction.reply({ content: `**${interaction.member.displayName}** pats ${member} uwu`, embeds: [patEmbed] });
 
 
         // Add a timeout to the command

@@ -6,10 +6,10 @@ var timeoutUsers = [];
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('hug')
-        .setDescription('Hug someone and make them feel loved!')
+        .setName('slap')
+        .setDescription('Slap someone and give them a taste of their own medicine c:<')
         .addUserOption(option =>
-            option.setName('member').setDescription('Who do you want to hug c:').setRequired(true)),
+            option.setName('member').setDescription('The person you want to slap').setRequired(true)),
 
 
     async execute(interaction) {
@@ -24,7 +24,7 @@ module.exports = {
             return Math.floor(Math.random() * (max - min) + min);
         };
 
-        // Get the member to hug
+        // Get the member to pat
         const user = interaction.options.getUser('member');
         try {
             var member = await interaction.guild.members.fetch(user.id);
@@ -32,19 +32,21 @@ module.exports = {
             return await interaction.reply({ content: "I don´t think that user is from this server! <:michiru_toast:1087450095047409734>", ephemeral: true });
         };
 
-        if (member === interaction.member) return interaction.reply({ content: 'It´s very sad to hug yourself :c', ephemeral: true });
-        if (member.bot) return interaction.reply({ content: 'You can´t hug a bot!', ephemeral: true });
+        // If they want to slap me
+        if (member === interaction.guild.members.me) return await interaction.reply({ content: "Good try but no hehe", ephemeral: true });
+        if (member === interaction.member) return interaction.reply({ content: 'You want to slap yourself?!?', ephemeral: true });
+        if (member.bot) return interaction.reply({ content: 'You can´t slap a bot, that´s very dangerous! Trust me.', ephemeral: true });
 
         // Get the gifs from the aray
-        let hugGifs = rolePlayArray[0].images.hugs;
+        const slapGifs = rolePlayArray[0].images.slaps;
 
         // The embed with a random gif
-        const hugEmbed = new EmbedBuilder()
+        const patEmbed = new EmbedBuilder()
             .setColor(interaction.guild.members.me.displayHexColor)
-            .setImage(hugGifs[randomValue(0, hugGifs.length)])
+            .setImage(slapGifs[randomValue(0, slapGifs.length)])
             .setFooter({ text: `${interaction.guild.name} - Role Play`, iconURL: `${interaction.guild.iconURL()}` });
-
-        await interaction.reply({ content: `**${interaction.member.displayName}** gave a hug to ${member} iwi`, embeds: [hugEmbed] });
+        // Reply
+        await interaction.reply({ content: `**${interaction.member.displayName}** slapped ${member} c:<`, embeds: [patEmbed] });
 
 
         // Add a timeout to the command
