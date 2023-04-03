@@ -1,4 +1,5 @@
 const { Events } = require('discord.js');
+const fs = require('fs');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -17,6 +18,7 @@ module.exports = {
 		} catch (error) {
 			console.error(`[WARNING] I had an error executing this command: ${interaction.commandName}`);
 			console.error(error);
+			fs.appendFile('../src/err/error.log', `/ An error ocurred at ${interaction.commandName} => ${error} /`);
 			return interaction.reply({ content: "Sorry! There was an internal error, please try again '^^", ephemeral: true });
 		}
 	},
