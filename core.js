@@ -1,8 +1,19 @@
+// Cute logo thingy, yes, it´s more important than the rest!
+console.log("    __ __ ______  _____  __   ____  _____ ______");
+console.log("   / //_//  _/  |/  / / / /  / __ )/ __  /_  __/");
+console.log("  / ,<   / // /|_/ / / / /  / __  / / / / / /   ");
+console.log(" / /| |_/ // /  / / /_/ /  / /_/ / /_/ / / /    ");
+console.log("/_/ |_/___/_/  /_/_____/  /_____/\_____/ /_/    ");
+console.log("                                 Beta 0.3 -w-   ");
+console.log("                                                ");
+/* ----------------------------------------------- */
+
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, GatewayIntentBits, Collection } = require('discord.js')
-const mongoose = require('./database/mondongo.js')
-const Niveles = require('discord-xp')
+const mongoose = require('./database/mondongo.js');
+const dbcheck = require('./database/database-checkup');
+const Niveles = require('discord-xp');
 const dotenv = require('dotenv').config();
 
 // Create the client instance
@@ -56,19 +67,6 @@ for (const file of commandFiles) {
 //MONDONGO DB Connection
 Niveles.setURL(process.env.MONDONGO);
 mongoose.init();
-
-
-// Cute logo thingy
-console.log("    __ __ ______  _____  __   ____  _____ ______");
-console.log("   / //_//  _/  |/  / / / /  / __ )/ __  /_  __/");
-console.log("  / ,<   / // /|_/ / / / /  / __  / / / / / /   ");
-console.log(" / /| |_/ // /  / / /_/ /  / /_/ / /_/ / / /    ");
-console.log("/_/ |_/___/_/  /_/_____/  /_____/\_____/ /_/    ");
-console.log("                                 Beta 0.3 -w-   ");
-console.log("                                                ");
-
-
-
 
 // Log in to Discord ----------------
 client.login(process.env.TOKEN); // |
