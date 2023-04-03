@@ -3,11 +3,20 @@ const Canvas = require('canvas');
 const { resolve } = require("path");
 const mysql = require('mysql');
 const welcomeMessages = require('../src/json/welcome-msg.json');
+const jsonfile = require('jsonfile');
 
 module.exports = {
     name: Events.GuildMemberAdd,
 
     async execute(member) {
+        // First of all, give the autoroles
+        try {
+            const autoroles = jsonfile.readFileSync(`./src/json/guild-autoroles/${member.guild.id}.json`);
+            member.roles.add(autoroles);
+        } catch {
+            console.log("no autoroles");
+        }
+
         // DB Connection
         var con = mysql.createPool({
             host: "localhost",
